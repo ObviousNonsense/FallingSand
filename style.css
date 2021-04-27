@@ -1,0 +1,10 @@
+html, body {
+  margin: 10;
+  padding: 10;
+  background-color: #131622;
+  color: beige;
+}
+
+canvas {
+  display: block;
+}
