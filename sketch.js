@@ -1,9 +1,9 @@
-let pixelsPerParticle = 4;
+let pixelsPerParticle = 16;
 let grid = [];
 let nextGrid = [];
 let falseGrid = [];
-let gridWidth = 100;
-let gridHeight = 100;
+let gridWidth = 32;
+let gridHeight = 32;
 let frHistory = [];
 let frHistoryIndex = 0;
 let fr;
@@ -11,7 +11,7 @@ let radio;
 
 
 function setup() {
-	// frameRate(5);
+	frameRate(30);
 
 	createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
@@ -21,7 +21,7 @@ function setup() {
 	radio.option('Sand');
 	radio.option('Wall');
 	radio.option('Water');
-	radio.selected(0);
+	radio.selected('Sand');
 
 	fr = createP('');
 	frHistory = new Array(60);
@@ -41,12 +41,12 @@ function setup() {
 		}
 	}
 
-	new WaterParticle(5, 5);
+	// new WaterParticle(5, 5);
 }
 
 function draw() {
 	background(0);
-	// new SandParticle(2, 0);
+	new SandParticle(gridWidth / 2, 0);
 	// new SandParticle(75, 50);
 
 	if (mouseIsPressed) {
@@ -77,15 +77,9 @@ function draw() {
 				p.show();
 				p.update();
 			}
-			// else {
-				// nextGrid[x][y] = false;
-			// }
 		}
 	}
 
-	// let temp = grid;
-	// grid = nextGrid;
-	// nextGrid = temp;
 	for (let n = 0; n < grid.length; n++) {
 		grid[n] = nextGrid[n].slice();
 	}
@@ -105,123 +99,5 @@ function draw() {
 			sum += frHistory[i];
 		}
 		return sum / frHistory.length;
-	}
-}
-
-
-function WallParticle(x, y) {
-	this.x = y;
-	this.y = x;
-	grid[x][y] = this;
-
-	this.show = function () {
-		// noStroke();
-		strokeWeight(1);
-		stroke(0, 50);
-		fill(65, 68, 74);
-		rect(this.y * pixelsPerParticle,
-			this.x * pixelsPerParticle,
-			pixelsPerParticle,
-			pixelsPerParticle);
-	}
-
-	this.update = function () {
-		nextGrid[this.y][this.x] = this;
-	}
-}
-
-
-function SandParticle(x, y) {
-	this.y = y;
-	this.x = x;
-	grid[x][y] = this;
-
-	this.show = function () {
-		// noStroke();
-		strokeWeight(1);
-		stroke(0, 50);
-		fill(229, 181, 95);
-		rect(this.x * pixelsPerParticle,
-			this.y * pixelsPerParticle,
-			pixelsPerParticle,
-			pixelsPerParticle);
-	}
-
-	this.update = function () {
-		if (!nextGrid[this.x][this.y + 1]) {
-			// Move straight down
-			this.updateGridPosition(this.x, this.y + 1);
-		}
-		else if (!nextGrid[this.x - 1][this.y + 1]) {
-			// Move down and left
-			this.updateGridPosition(this.x - 1, this.y + 1);
-		}
-		else if (!nextGrid[this.x + 1][this.y + 1]) {
-			// Move down and right
-			this.updateGridPosition(this.x + 1, this.y + 1);
-		}
-		else {
-			// Don't move
-			nextGrid[this.x][this.y] = this;
-		}
-	}
-
-	this.updateGridPosition = function (x, y) {
-		nextGrid[this.x][this.y] = false;
-		this.y = y;
-		this.x = x;
-		nextGrid[x][y] = this;
-	}
-}
-
-
-function WaterParticle(x, y) {
-	this.y = y;
-	this.x = x;
-	grid[x][y] = this;
-
-	this.show = function () {
-		// noStroke();
-		strokeWeight(1);
-		stroke(0, 50);
-		fill(43, 100, 195);
-		rect(this.x * pixelsPerParticle,
-			this.y * pixelsPerParticle,
-			pixelsPerParticle,
-			pixelsPerParticle);
-	}
-
-	this.update = function () {
-		if (!nextGrid[this.x][this.y + 1]) {
-			// Move straight down
-			this.updateGridPosition(this.x, this.y + 1);
-		}
-		else if (!nextGrid[this.x - 1][this.y + 1]) {
-			// Move down and left
-			this.updateGridPosition(this.x - 1, this.y + 1);
-		}
-		else if (!nextGrid[this.x + 1][this.y + 1]) {
-			// Move down and right
-			this.updateGridPosition(this.x + 1, this.y + 1);
-		}
-		else if (!nextGrid[this.x + 1][this.y]) {
-			// Move right
-			this.updateGridPosition(this.x + 1, this.y);
-		}
-		else if (!nextGrid[this.x - 1][this.y]) {
-			// Move left
-			this.updateGridPosition(this.x - 1, this.y);
-		}
-		else {
-			// Don't move
-			nextGrid[this.x][this.y] = this;
-		}
-	}
-
-	this.updateGridPosition = function (x, y) {
-		nextGrid[this.x][this.y] = false;
-		this.y = y;
-		this.x = x;
-		nextGrid[x][y] = this;
 	}
 }
