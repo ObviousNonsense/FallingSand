@@ -7,10 +7,10 @@ let frHistory = [];
 let frHistoryIndex = 0;
 let fr;
 let radio;
-
+let pauseButton;
+let frSlider;
 
 function setup() {
-	// frameRate(30);
 
 	createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
@@ -21,6 +21,11 @@ function setup() {
 	radio.option('Wall');
 	radio.option('Water');
 	radio.selected('Sand');
+
+	pauseButton = createButton('Pause');
+	pauseButton.mouseClicked(pauseSim);
+
+	frSlider = createSlider(1, 60, 60, 1);
 
 	fr = createP('');
 	frHistory = new Array(60);
@@ -39,6 +44,7 @@ function setup() {
 }
 
 function draw() {
+	frameRate(frSlider.value())
 	background(0);
 	if (!grid[gridWidth / 2][0]) {
 		new SandParticle(gridWidth / 2, 0);
@@ -72,18 +78,29 @@ function draw() {
 
 	fr.html(floor(averageFrameRate()));
 	// noLoop();
+}
 
-	function averageFrameRate() {
-		frHistory[frHistoryIndex] = frameRate();
-		frHistoryIndex += 1;
-		if (frHistoryIndex >= frHistory.length) {
-			frHistoryIndex = 0;
-		}
 
-		sum = 0;
-		for (let i = 0; i < frHistory.length; i++) {
-			sum += frHistory[i];
-		}
-		return sum / frHistory.length;
+averageFrameRate = function() {
+	frHistory[frHistoryIndex] = frameRate();
+	frHistoryIndex += 1;
+	if (frHistoryIndex >= frHistory.length) {
+		frHistoryIndex = 0;
+	}
+
+	sum = 0;
+	for (let i = 0; i < frHistory.length; i++) {
+		sum += frHistory[i];
+	}
+	return sum / frHistory.length;
+}
+
+
+pauseSim = function() {
+	if (isLooping()) {
+		noLoop();
+	}
+	else {
+		loop();
 	}
 }
