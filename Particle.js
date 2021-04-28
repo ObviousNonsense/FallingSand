@@ -8,9 +8,9 @@ class Particle {
     }
 
     show = function () {
-        // noStroke();
-        strokeWeight(1);
-        stroke(0, 50);
+        noStroke();
+        // strokeWeight(1);
+        // stroke(0, 50);
         fill(this.color);
         rect(this.x * pixelsPerParticle,
             this.y * pixelsPerParticle,

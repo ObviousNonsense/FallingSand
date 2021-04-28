@@ -14,7 +14,7 @@ function setup() {
 
 	createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
-	pixelDensity(1);
+	// pixelDensity(1);
 
 	radio = createRadio();
 	radio.option('Sand');
@@ -40,8 +40,9 @@ function setup() {
 
 function draw() {
 	background(0);
-	new SandParticle(gridWidth / 2, 0);
-	// new SandParticle(75, 50);
+	if (!grid[gridWidth / 2][0]) {
+		new SandParticle(gridWidth / 2, 0);
+	}
 
 	if (mouseIsPressed) {
 		if (mouseX < width && mouseX >= 0 && mouseY < height && mouseY >= 0) {
