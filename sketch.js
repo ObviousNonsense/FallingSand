@@ -39,10 +39,6 @@ function setup() {
 			nextGrid[x][y] = false;
 		}
 	}
-
-	// new SandParticle(gridWidth / 2, 0);
-	// new SandParticle(gridWidth / 2, 1);
-	// new SandParticle(gridWidth / 2, 2);
 }
 
 function draw() {
@@ -71,22 +67,23 @@ function draw() {
 		}
 	}
 
-	for (let j = gridHeight - 1; j >= 0; j--) {
-		for (let i = 0; i < gridWidth; i++) {
-			let p = grid[i][j];
+	for (let y = gridHeight - 1; y >= 0; y--) {
+		for (let x = 0; x < gridWidth; x++) {
+			let p = grid[x][y];
 			if (p) {
 				p.show();
 				p.update();
 			}
 			else {
-				nextGrid[i][j] = false;
+				nextGrid[x][y] = false;
 			}
 		}
 	}
 
-	let temp = grid;
-	grid = nextGrid;
-	nextGrid = temp;
+	// let temp = grid;
+	// grid = nextGrid;
+	// nextGrid = temp;
+	grid = nextGrid.slice();
 
 	fr.html(floor(averageFrameRate()));
 	// noLoop();
@@ -107,105 +104,113 @@ function draw() {
 }
 
 
-function WallParticle(i, j) {
-	this.row = j;
-	this.col = i;
-	grid[i][j] = this;
+function WallParticle(x, y) {
+	this.x = y;
+	this.y = x;
+	grid[x][y] = this;
 
 	this.show = function () {
 		noStroke();
 		fill(65, 68, 74);
-		rect(this.col * pixelsPerParticle,
-			this.row * pixelsPerParticle,
+		rect(this.y * pixelsPerParticle,
+			this.x * pixelsPerParticle,
 			pixelsPerParticle,
 			pixelsPerParticle);
 	}
 
 	this.update = function () {
-		nextGrid[this.col][this.row] = this;
+		nextGrid[this.y][this.x] = this;
 	}
 }
 
 
-function SandParticle(i, j) {
-	this.row = j;
-	this.col = i;
-	grid[i][j] = this;
+function SandParticle(x, y) {
+	this.y = y;
+	this.x = x;
+	grid[x][y] = this;
 
 	this.show = function () {
 		noStroke();
 		fill(229, 181, 95);
-		rect(this.col * pixelsPerParticle,
-			this.row * pixelsPerParticle,
+		rect(this.x * pixelsPerParticle,
+			this.y * pixelsPerParticle,
 			pixelsPerParticle,
 			pixelsPerParticle);
 	}
 
 	this.update = function () {
-		if (!nextGrid[this.col][this.row + 1]) {
+		if (!nextGrid[this.x][this.y + 1]) {
 			// Move straight down
-			this.updateGridPosition(this.col, this.row + 1);
+			this.updateGridPosition(this.x, this.y + 1);
 		}
-		else if (!nextGrid[this.col - 1][this.row + 1]) {
+		else if (!nextGrid[this.x - 1][this.y + 1]) {
 			// Move down and left
-			this.updateGridPosition(this.col - 1, this.row + 1);
+			this.updateGridPosition(this.x - 1, this.y + 1);
 		}
-		else if (!nextGrid[this.col + 1][this.row + 1]) {
+		else if (!nextGrid[this.x + 1][this.y + 1]) {
 			// Move down and right
-			this.updateGridPosition(this.col + 1, this.row + 1);
+			this.updateGridPosition(this.x + 1, this.y + 1);
 		}
 		else {
 			// Don't move
-			nextGrid[this.col][this.row] = this;
+			nextGrid[this.x][this.y] = this;
 		}
 	}
 
-	this.updateGridPosition = function (i, j) {
-		nextGrid[this.col][this.row] = false;
-		this.row = j;
-		this.col = i;
-		nextGrid[i][j] = this;
+	this.updateGridPosition = function (x, y) {
+		nextGrid[this.x][this.y] = false;
+		this.y = y;
+		this.x = x;
+		nextGrid[x][y] = this;
 	}
 }
 
 
-function WaterParticle(i, j) {
-	this.row = j;
-	this.col = i;
-	grid[i][j] = this;
+function WaterParticle(x, y) {
+	this.y = y;
+	this.x = x;
+	grid[x][y] = this;
 
 	this.show = function () {
 		noStroke();
 		fill(43, 100, 195);
-		rect(this.col * pixelsPerParticle,
-			this.row * pixelsPerParticle,
+		rect(this.x * pixelsPerParticle,
+			this.y * pixelsPerParticle,
 			pixelsPerParticle,
 			pixelsPerParticle);
 	}
 
 	this.update = function () {
-		if (!nextGrid[this.col][this.row + 1]) {
+		if (!nextGrid[this.x][this.y + 1]) {
 			// Move straight down
-			this.updateGridPosition(this.col, this.row + 1);
+			this.updateGridPosition(this.x, this.y + 1);
 		}
-		else if (!nextGrid[this.col - 1][this.row + 1]) {
+		else if (!nextGrid[this.x - 1][this.y + 1]) {
 			// Move down and left
-			this.updateGridPosition(this.col - 1, this.row + 1);
+			this.updateGridPosition(this.x - 1, this.y + 1);
 		}
-		else if (!nextGrid[this.col + 1][this.row + 1]) {
+		else if (!nextGrid[this.x + 1][this.y + 1]) {
 			// Move down and right
-			this.updateGridPosition(this.col + 1, this.row + 1);
+			this.updateGridPosition(this.x + 1, this.y + 1);
+		}
+		else if (!nextGrid[this.x - 1][this.y]) {
+			// Move left
+			this.updateGridPosition(this.x - 1, this.y);
+		}
+		else if (!nextGrid[this.x + 1][this.y]) {
+			// Move right
+			this.updateGridPosition(this.x + 1, this.y);
 		}
 		else {
 			// Don't move
-			nextGrid[this.col][this.row] = this;
+			nextGrid[this.x][this.y] = this;
 		}
 	}
 
-	this.updateGridPosition = function (i, j) {
-		nextGrid[this.col][this.row] = false;
-		this.row = j;
-		this.col = i;
-		nextGrid[i][j] = this;
+	this.updateGridPosition = function (x, y) {
+		nextGrid[this.x][this.y] = false;
+		this.y = y;
+		this.x = x;
+		nextGrid[x][y] = this;
 	}
 }
