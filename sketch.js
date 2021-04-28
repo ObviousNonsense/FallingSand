@@ -32,13 +32,16 @@ function setup() {
 		for (let y = 0; y < gridHeight; y++) {
 			if (y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
 				grid[x][y] = new WallParticle(x, y);
+				nextGrid[x][y] = new WallParticle(x, y);
 			}
 			else {
 				grid[x][y] = false;
+				nextGrid[x][y] = false;
 			}
-			nextGrid[x][y] = false;
 		}
 	}
+
+	new WaterParticle(5, 5);
 }
 
 function draw() {
@@ -74,16 +77,18 @@ function draw() {
 				p.show();
 				p.update();
 			}
-			else {
-				nextGrid[x][y] = false;
-			}
+			// else {
+				// nextGrid[x][y] = false;
+			// }
 		}
 	}
 
 	// let temp = grid;
 	// grid = nextGrid;
 	// nextGrid = temp;
-	grid = nextGrid.slice();
+	for (let n = 0; n < grid.length; n++) {
+		grid[n] = nextGrid[n].slice();
+	}
 
 	fr.html(floor(averageFrameRate()));
 	// noLoop();
@@ -110,7 +115,9 @@ function WallParticle(x, y) {
 	grid[x][y] = this;
 
 	this.show = function () {
-		noStroke();
+		// noStroke();
+		strokeWeight(1);
+		stroke(0, 50);
 		fill(65, 68, 74);
 		rect(this.y * pixelsPerParticle,
 			this.x * pixelsPerParticle,
@@ -130,7 +137,9 @@ function SandParticle(x, y) {
 	grid[x][y] = this;
 
 	this.show = function () {
-		noStroke();
+		// noStroke();
+		strokeWeight(1);
+		stroke(0, 50);
 		fill(229, 181, 95);
 		rect(this.x * pixelsPerParticle,
 			this.y * pixelsPerParticle,
@@ -172,7 +181,9 @@ function WaterParticle(x, y) {
 	grid[x][y] = this;
 
 	this.show = function () {
-		noStroke();
+		// noStroke();
+		strokeWeight(1);
+		stroke(0, 50);
 		fill(43, 100, 195);
 		rect(this.x * pixelsPerParticle,
 			this.y * pixelsPerParticle,
@@ -193,13 +204,13 @@ function WaterParticle(x, y) {
 			// Move down and right
 			this.updateGridPosition(this.x + 1, this.y + 1);
 		}
-		else if (!nextGrid[this.x - 1][this.y]) {
-			// Move left
-			this.updateGridPosition(this.x - 1, this.y);
-		}
 		else if (!nextGrid[this.x + 1][this.y]) {
 			// Move right
 			this.updateGridPosition(this.x + 1, this.y);
+		}
+		else if (!nextGrid[this.x - 1][this.y]) {
+			// Move left
+			this.updateGridPosition(this.x - 1, this.y);
 		}
 		else {
 			// Don't move
