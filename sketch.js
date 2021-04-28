@@ -1,7 +1,6 @@
 let pixelsPerParticle = 16;
 let grid = [];
-let nextGrid = [];
-let falseGrid = [];
+let particleSet = new Set();
 let gridWidth = 32;
 let gridHeight = 32;
 let frHistory = [];
@@ -11,7 +10,7 @@ let radio;
 
 
 function setup() {
-	frameRate(30);
+	// frameRate(30);
 
 	createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
@@ -28,15 +27,10 @@ function setup() {
 
 	for (let x = 0; x < gridWidth; x++) {
 		grid[x] = [];
-		nextGrid[x] = [];
 		for (let y = 0; y < gridHeight; y++) {
+			grid[x][y] = false;
 			if (y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
-				grid[x][y] = new WallParticle(x, y);
-				nextGrid[x][y] = new WallParticle(x, y);
-			}
-			else {
-				grid[x][y] = false;
-				nextGrid[x][y] = false;
+				new WallParticle(x, y);
 			}
 		}
 	}
@@ -70,18 +64,9 @@ function draw() {
 		}
 	}
 
-	for (let y = gridHeight - 1; y >= 0; y--) {
-		for (let x = 0; x < gridWidth; x++) {
-			let p = grid[x][y];
-			if (p) {
-				p.show();
-				p.update();
-			}
-		}
-	}
-
-	for (let n = 0; n < grid.length; n++) {
-		grid[n] = nextGrid[n].slice();
+	for (let p of particleSet) {
+		p.show();
+		p.update();
 	}
 
 	fr.html(floor(averageFrameRate()));

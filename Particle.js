@@ -3,6 +3,7 @@ class Particle {
         this.x = x;
         this.y = y;
         grid[x][y] = this;
+        particleSet.add(this);
         this.color = null;
     }
 
@@ -20,10 +21,10 @@ class Particle {
     update = function () { }
 
     updateGridPosition = function (x, y) {
-        nextGrid[this.x][this.y] = false;
+        grid[this.x][this.y] = false;
         this.y = y;
         this.x = x;
-        nextGrid[x][y] = this;
+        grid[x][y] = this;
     };
 }
 
@@ -31,10 +32,6 @@ class WallParticle extends Particle {
     constructor(x, y) {
         super(x, y);
         this.color = color(65, 68, 74);
-    }
-
-    update = function () {
-        nextGrid[this.x][this.y] = this;
     }
 }
 
@@ -46,21 +43,17 @@ class SandParticle extends Particle {
     }
 
     update = function () {
-        if (!nextGrid[this.x][this.y + 1]) {
+        if (!grid[this.x][this.y + 1]) {
             // Move straight down
             this.updateGridPosition(this.x, this.y + 1);
         }
-        else if (!nextGrid[this.x - 1][this.y + 1]) {
+        else if (!grid[this.x - 1][this.y + 1]) {
             // Move down and left
             this.updateGridPosition(this.x - 1, this.y + 1);
         }
-        else if (!nextGrid[this.x + 1][this.y + 1]) {
+        else if (!grid[this.x + 1][this.y + 1]) {
             // Move down and right
             this.updateGridPosition(this.x + 1, this.y + 1);
-        }
-        else {
-            // Don't move
-            nextGrid[this.x][this.y] = this;
         }
     }
 }
@@ -73,29 +66,25 @@ class WaterParticle extends Particle {
     }
 
     update = function () {
-        if (!nextGrid[this.x][this.y + 1]) {
+        if (!grid[this.x][this.y + 1]) {
             // Move straight down
             this.updateGridPosition(this.x, this.y + 1);
         }
-        else if (!nextGrid[this.x - 1][this.y + 1]) {
+        else if (!grid[this.x - 1][this.y + 1]) {
             // Move down and left
             this.updateGridPosition(this.x - 1, this.y + 1);
         }
-        else if (!nextGrid[this.x + 1][this.y + 1]) {
+        else if (!grid[this.x + 1][this.y + 1]) {
             // Move down and right
             this.updateGridPosition(this.x + 1, this.y + 1);
         }
-        else if (!nextGrid[this.x + 1][this.y]) {
+        else if (!grid[this.x + 1][this.y]) {
             // Move right
             this.updateGridPosition(this.x + 1, this.y);
         }
-        else if (!nextGrid[this.x - 1][this.y]) {
+        else if (!grid[this.x - 1][this.y]) {
             // Move left
             this.updateGridPosition(this.x - 1, this.y);
-        }
-        else {
-            // Don't move
-            nextGrid[this.x][this.y] = this;
         }
     }
 }
