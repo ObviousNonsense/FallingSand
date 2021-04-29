@@ -94,6 +94,12 @@ class SandParticle extends Particle {
             [-1, +1],
             [+1, +1]
         ]
+
+        if (random() > 0.5) {
+            let temp = this.updateList[1];
+            this.updateList[1] = this.updateList[2];
+            this.updateList[2] = temp;
+        }
     }
 
     update = function () {

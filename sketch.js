@@ -10,6 +10,9 @@ let radio;
 let pauseButton;
 let frSlider;
 let paused = false;
+let brushSizeSlider;
+let brushSizeDisplay;
+let brushReplaceCheckbox;
 
 function setup() {
 
@@ -21,7 +24,12 @@ function setup() {
 	radio.option('Sand');
 	radio.option('Wall');
 	radio.option('Water');
+	radio.option('Delete');
 	radio.selected('Sand');
+
+	brushSizeDisplay = createP('');
+	brushSizeSlider = createSlider(1, 0.25 * min(gridWidth, gridHeight), 1, 1);
+	brushReplaceCheckbox = createCheckbox('Replace?', true)
 
 	pauseButton = createButton('Pause');
 	pauseButton.mouseClicked(pauseSim);
@@ -35,7 +43,7 @@ function setup() {
 		grid[x] = [];
 		for (let y = 0; y < gridHeight; y++) {
 			grid[x][y] = false;
-			if (y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
+			if (y === 0 || y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
 				new WallParticle(x, y);
 			}
 		}
@@ -47,36 +55,16 @@ function setup() {
 function draw() {
 	frameRate(frSlider.value())
 	background(0);
-	// if (!grid[gridWidth / 2][0]) {
-	// 	new SandParticle(gridWidth / 2, 0);
-	// }
 
-	if (mouseIsPressed) {
-		if (mouseX < width && mouseX >= 0 && mouseY < height && mouseY >= 0) {
-			let x = floor(mouseX / pixelsPerParticle);
-			let y = floor(mouseY / pixelsPerParticle);
-			if (!grid[x][y]) {
-				let type = radio.value();
-				switch (type) {
-					case 'Sand':
-						new SandParticle(x, y);
-						break;
-					case 'Wall':
-						new WallParticle(x, y);
-						break;
-					case 'Water':
-						new WaterParticle(x, y);
-						break;
-				}
-			}
-		}
-	}
+	brushSizeDisplay.html(brushSizeSlider.value());
+
+	handleMouseClick();
 
 	for (let p of particleSet) {
+		p.show();
 		if (!paused) {
 			p.update();
 		}
-		p.show();
 	}
 
 	fr.html(floor(averageFrameRate()));
@@ -84,7 +72,7 @@ function draw() {
 }
 
 
-averageFrameRate = function() {
+averageFrameRate = function () {
 	frHistory[frHistoryIndex] = frameRate();
 	frHistoryIndex += 1;
 	if (frHistoryIndex >= frHistory.length) {
@@ -99,6 +87,58 @@ averageFrameRate = function() {
 }
 
 
-pauseSim = function() {
+pauseSim = function () {
 	paused = !paused;
+}
+
+
+handleMouseClick = function () {
+	if (mouseIsPressed) {
+		let x = floor(mouseX / pixelsPerParticle);
+		let y = floor(mouseY / pixelsPerParticle);
+
+		if (x <= gridWidth - 2 && x >= 1 && y <= gridHeight - 2 && y >= 1) {
+
+			let brushSize = brushSizeSlider.value();
+			let imin = floor(-0.5 * (brushSize - 1));
+
+			for (i = imin; i < imin + brushSize; i++) {
+				let ix = x + i;
+				for (j = imin; j < imin + brushSize; j++) {
+					let iy = y + j;
+					if (ix <= gridWidth - 2 && ix >= 1 && iy <= gridHeight - 2 && iy >= 1) {
+						let p = grid[ix][iy];
+						let action = radio.value();
+						if (p) {
+							if (brushReplaceCheckbox.checked() || action === 'Delete') {
+								particleSet.delete(p);
+								performSelectedAction(action, ix, iy);
+							}
+						}
+						else {
+							performSelectedAction(action, ix, iy);
+						}
+
+					}
+				}
+			}
+		}
+	}
+
+	performSelectedAction = function (action, x, y) {
+		switch (action) {
+			case 'Sand':
+				new SandParticle(x, y);
+				break;
+			case 'Wall':
+				new WallParticle(x, y);
+				break;
+			case 'Water':
+				new WaterParticle(x, y);
+				break;
+			case 'Delete':
+				grid[x][y] = false;
+				break;
+		}
+	}
 }
