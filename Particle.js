@@ -5,6 +5,7 @@ class Particle {
         grid[x][y] = this;
         particleSet.add(this);
         this.color = color(0);
+        this.weight = Infinity;
         this.show();
     }
 
@@ -21,12 +22,34 @@ class Particle {
 
     update = function () { }
 
-    updateGridPosition = function (x, y) {
+    tryGridPosition = function (x, y) {
+        let p = grid[x][y];
+        if (!p) {
+            this.moveToGridPosition(x, y);
+            return true;
+        }
+        else if (this.y > y && p.weight < this.weight) {
+            this.swapParticles(p);
+            return true;
+        }
+        return false;
+    }
+
+    moveToGridPosition = function (x, y) {
         grid[this.x][this.y] = false;
-        this.y = y;
         this.x = x;
+        this.y = y;
         grid[x][y] = this;
-    };
+    }
+
+    swapParticles = function (otherParticle) {
+        let tempX = otherParticle.x;
+        let tempY = otherParticle.y;
+        otherParticle.moveToGridPosition(this.x, this.y);
+        this.x = tempX;
+        this.y = tempY;
+        grid[tempX][tempY] = this;
+    }
 }
 
 class WallParticle extends Particle {
@@ -41,20 +64,25 @@ class SandParticle extends Particle {
     constructor(x, y) {
         super(x, y);
         this.color = color(229, 181, 95);
+        this.weight = 2;
+        this.updateList = [
+            [+0, +1],
+            [-1, +1],
+            [+1, +1]
+        ]
     }
 
     update = function () {
-        if (!grid[this.x][this.y + 1]) {
-            // Move straight down
-            this.updateGridPosition(this.x, this.y + 1);
-        }
-        else if (!grid[this.x - 1][this.y + 1]) {
-            // Move down and left
-            this.updateGridPosition(this.x - 1, this.y + 1);
-        }
-        else if (!grid[this.x + 1][this.y + 1]) {
-            // Move down and right
-            this.updateGridPosition(this.x + 1, this.y + 1);
+        let moved = false;
+        let i = 0;
+
+        for (let i = 0; i < this.updateList.length; i++) {
+            // while (!moved) {
+            let u = this.updateList[i];
+            moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
+            if (moved) {
+                return;
+            }
         }
     }
 }
@@ -64,28 +92,26 @@ class WaterParticle extends Particle {
     constructor(x, y) {
         super(x, y);
         this.color = color(43, 100, 195);
+        this.weight = 1;
+        this.updateList = [
+            [+0, +1],
+            [-1, +1],
+            [+1, +1],
+            [+1, +0],
+            [-1, +0]
+        ]
     }
 
     update = function () {
-        if (!grid[this.x][this.y + 1]) {
-            // Move straight down
-            this.updateGridPosition(this.x, this.y + 1);
-        }
-        else if (!grid[this.x - 1][this.y + 1]) {
-            // Move down and left
-            this.updateGridPosition(this.x - 1, this.y + 1);
-        }
-        else if (!grid[this.x + 1][this.y + 1]) {
-            // Move down and right
-            this.updateGridPosition(this.x + 1, this.y + 1);
-        }
-        else if (!grid[this.x + 1][this.y]) {
-            // Move right
-            this.updateGridPosition(this.x + 1, this.y);
-        }
-        else if (!grid[this.x - 1][this.y]) {
-            // Move left
-            this.updateGridPosition(this.x - 1, this.y);
+        let moved = false;
+
+        for (let i = 0; i < this.updateList.length; i++) {
+            // while (!moved) {
+            let u = this.updateList[i];
+            moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
+            if (moved) {
+                return;
+            }
         }
     }
 }
