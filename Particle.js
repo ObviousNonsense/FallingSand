@@ -4,7 +4,8 @@ class Particle {
         this.y = y;
         grid[x][y] = this;
         particleSet.add(this);
-        this.color = null;
+        this.color = color(0);
+        this.show();
     }
 
     show = function () {

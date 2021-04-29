@@ -9,6 +9,7 @@ let fr;
 let radio;
 let pauseButton;
 let frSlider;
+let paused = false;
 
 function setup() {
 
@@ -72,8 +73,10 @@ function draw() {
 	}
 
 	for (let p of particleSet) {
+		if (!paused) {
+			p.update();
+		}
 		p.show();
-		p.update();
 	}
 
 	fr.html(floor(averageFrameRate()));
@@ -97,10 +100,5 @@ averageFrameRate = function() {
 
 
 pauseSim = function() {
-	if (isLooping()) {
-		noLoop();
-	}
-	else {
-		loop();
-	}
+	paused = !paused;
 }
