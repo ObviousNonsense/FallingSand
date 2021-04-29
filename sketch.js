@@ -1,8 +1,8 @@
-let pixelsPerParticle = 16;
+let pixelsPerParticle = 8;
 let grid = [];
 let particleSet = new Set();
-let gridWidth = 32;
-let gridHeight = 32;
+let gridWidth = 64;
+let gridHeight = 64;
 let frHistory = [];
 let frHistoryIndex = 0;
 let fr;
@@ -26,7 +26,7 @@ function setup() {
 	pauseButton = createButton('Pause');
 	pauseButton.mouseClicked(pauseSim);
 
-	frSlider = createSlider(1, 60, 60, 1);
+	frSlider = createSlider(1, 60, 30, 1);
 
 	fr = createP('');
 	frHistory = new Array(60);
@@ -47,9 +47,9 @@ function setup() {
 function draw() {
 	frameRate(frSlider.value())
 	background(0);
-	if (!grid[gridWidth / 2][0]) {
-		new SandParticle(gridWidth / 2, 0);
-	}
+	// if (!grid[gridWidth / 2][0]) {
+	// 	new SandParticle(gridWidth / 2, 0);
+	// }
 
 	if (mouseIsPressed) {
 		if (mouseX < width && mouseX >= 0 && mouseY < height && mouseY >= 0) {

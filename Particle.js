@@ -20,15 +20,17 @@ class Particle {
             pixelsPerParticle);
     }
 
-    update = function () { }
+    update = function () {
+        return false;
+    }
 
-    tryGridPosition = function (x, y) {
+    tryGridPosition = function (x, y, trySwap=true) {
         let p = grid[x][y];
         if (!p) {
             this.moveToGridPosition(x, y);
             return true;
         }
-        else if (this.y > y && p.weight < this.weight) {
+        else if (trySwap && y > this.y && p.weight < this.weight) {
             this.swapParticles(p);
             return true;
         }
@@ -45,10 +47,32 @@ class Particle {
     swapParticles = function (otherParticle) {
         let tempX = otherParticle.x;
         let tempY = otherParticle.y;
+        let positionsToTry = [
+            [+1, +1],
+            [-1, +1],
+            [+1, +0],
+            [-1, +0]
+        ]
+        // otherParticle.moveToGridPosition(this.x, this.y);
+        let moved = false;
+        for (let i = 0; i < positionsToTry.length; i++) {
+            let p = positionsToTry[i];
+            moved = otherParticle.tryGridPosition(this.x + p[0], this.y + p[1], false);
+            if (moved) {
+                // this.x = tempX;
+                // this.y = tempY;
+                // grid[tempX][tempY] = this;
+                // this.update();
+                this.moveToGridPosition(tempX, tempY);
+                return;
+            }
+        }
+        // this.moveToGridPosition(tempX, tempY);
         otherParticle.moveToGridPosition(this.x, this.y);
         this.x = tempX;
         this.y = tempY;
         grid[tempX][tempY] = this;
+        // this.update();
     }
 }
 
@@ -81,9 +105,10 @@ class SandParticle extends Particle {
             let u = this.updateList[i];
             moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
             if (moved) {
-                return;
+                return moved;
             }
         }
+        return moved;
     }
 }
 
@@ -97,8 +122,8 @@ class WaterParticle extends Particle {
             [+0, +1],
             [-1, +1],
             [+1, +1],
-            [+1, +0],
-            [-1, +0]
+            [-1, +0],
+            [+1, +0]
         ]
     }
 
@@ -106,12 +131,17 @@ class WaterParticle extends Particle {
         let moved = false;
 
         for (let i = 0; i < this.updateList.length; i++) {
-            // while (!moved) {
             let u = this.updateList[i];
             moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
             if (moved) {
-                return;
+                if (i === 4) {
+                    let temp = this.updateList[3];
+                    this.updateList[3] = this.updateList[4];
+                    this.updateList[4] = temp;
+                }
+                return moved;
             }
         }
+        return moved;
     }
 }
