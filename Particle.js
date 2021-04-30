@@ -4,17 +4,21 @@ class Particle {
         this.y = y;
         grid[x][y] = this;
         particleSet.add(this);
-        this.color = color(0);
+        // this.color = color(0);
+        this.color = '#000000';
         this.weight = Infinity;
         this.show();
     }
 
     show = function () {
-        noStroke();
-        // strokeWeight(1);
-        // stroke(0, 50);
-        fill(this.color);
-        rect(this.x * pixelsPerParticle,
+        // fill(this.color);
+
+        // rect(this.x * pixelsPerParticle,
+        //     this.y * pixelsPerParticle,
+        //     pixelsPerParticle,
+        //     pixelsPerParticle);
+        canvasContext.fillStyle = this.color;
+        canvasContext.fillRect(this.x * pixelsPerParticle,
             this.y * pixelsPerParticle,
             pixelsPerParticle,
             pixelsPerParticle);
@@ -33,7 +37,7 @@ class Particle {
         // else if (trySwap && y > this.y && p.weight < this.weight) {
         else if (trySwap && y > this.y && random() > p.weight/this.weight) {
         // if (random() > p.weight/this.weight){
-                this.swapParticles(p);
+                this.displaceParticle(p);
                 return true;
             // }
         }
@@ -47,7 +51,7 @@ class Particle {
         grid[x][y] = this;
     }
 
-    swapParticles = function (otherParticle) {
+    displaceParticle = function (otherParticle) {
         let tempX = otherParticle.x;
         let tempY = otherParticle.y;
         let positionsToTry = [
@@ -82,7 +86,8 @@ class Particle {
 class WallParticle extends Particle {
     constructor(x, y) {
         super(x, y);
-        this.color = color(65, 68, 74);
+        this.color = '#41444a';
+        // this.color = color(65, 68, 74);
     }
 }
 
@@ -90,7 +95,8 @@ class WallParticle extends Particle {
 class SandParticle extends Particle {
     constructor(x, y) {
         super(x, y);
-        this.color = color(229, 181, 95);
+        this.color = '#e5b55f';
+        // this.color = color(229, 181, 95);
         this.weight = 2;
         this.updateList = [
             [+0, +1],
@@ -125,7 +131,8 @@ class SandParticle extends Particle {
 class WaterParticle extends Particle {
     constructor(x, y) {
         super(x, y);
-        this.color = color(43, 100, 195);
+        // this.color = color(43, 100, 195);
+        this.color = '#2b64c3';
         this.weight = 1;
         this.updateList = [
             [+0, +1],

@@ -1,8 +1,8 @@
-let pixelsPerParticle = 8;
+let pixelsPerParticle = 4;
 let grid = [];
 let particleSet = new Set();
-let gridWidth = 64;
-let gridHeight = 64;
+let gridWidth = 120;
+let gridHeight = 120;
 let frHistory = [];
 let frHistoryIndex = 0;
 let fr;
@@ -13,13 +13,16 @@ let paused = false;
 let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
+let canvas;
+let canvasContext;
 
 function setup() {
 
 	createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
 	// pixelDensity(1);
-
+	canvas = document.getElementById('defaultCanvas0');
+	canvasContext = canvas.getContext('2d');
 	radio = createRadio();
 	radio.option('Sand');
 	radio.option('Wall');
@@ -27,14 +30,14 @@ function setup() {
 	radio.option('Delete');
 	radio.selected('Sand');
 
-	brushSizeDisplay = createP('');
-	brushSizeSlider = createSlider(1, 0.25 * min(gridWidth, gridHeight), 1, 1);
+	brushSizeDisplay = createDiv('');
+	brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 1, 1);
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
 
 	pauseButton = createButton('Pause');
 	pauseButton.mouseClicked(pauseSim);
 
-	frSlider = createSlider(1, 60, 30, 1);
+	frSlider = createSlider(1, 60, 60, 1);
 
 	fr = createP('');
 	frHistory = new Array(60);
@@ -50,6 +53,9 @@ function setup() {
 	}
 
 	// new WaterParticle(5, 5);
+	noStroke();
+	// strokeWeight(1);
+	// stroke(0, 10);
 }
 
 function draw() {
@@ -130,15 +136,12 @@ handleMouseClick = function () {
 		switch (action) {
 			case 'Sand':
 				p = new SandParticle(x, y);
-				p.show()
 				break;
 			case 'Wall':
 				p = new WallParticle(x, y);
-				p.show()
 				break;
 			case 'Water':
 				p = new WaterParticle(x, y);
-				p.show()
 				break;
 			case 'Delete':
 				grid[x][y] = false;
