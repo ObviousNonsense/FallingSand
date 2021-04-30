@@ -7,7 +7,7 @@ class Particle {
         // this.color = color(0);
         this.color = '#000000';
         this.weight = Infinity;
-        this.show();
+        // this.show();
     }
 
     show = function () {

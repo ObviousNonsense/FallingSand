@@ -70,18 +70,22 @@ function setup() {
 
 function draw() {
 	frameRate(frSlider.value())
+	canvasContext.save()
 	background(0);
+	canvasContext.fillStyle = '#000000'
+	canvasContext.rect(0, 0, width, height);
 
 	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 
 	handleMouseClick();
-
 	for (let p of particleSet) {
 		if (!paused) {
 			p.update();
 		}
 		p.show();
 	}
+
+	canvasContext.restore();
 
 	fr.html('Average FPS: ' + floor(averageFrameRate()));
 	// noLoop();
