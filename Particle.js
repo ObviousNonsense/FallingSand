@@ -30,9 +30,12 @@ class Particle {
             this.moveToGridPosition(x, y);
             return true;
         }
-        else if (trySwap && y > this.y && p.weight < this.weight) {
-            this.swapParticles(p);
-            return true;
+        // else if (trySwap && y > this.y && p.weight < this.weight) {
+        else if (trySwap && y > this.y && random() > p.weight/this.weight) {
+        // if (random() > p.weight/this.weight){
+                this.swapParticles(p);
+                return true;
+            // }
         }
         return false;
     }

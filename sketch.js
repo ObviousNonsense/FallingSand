@@ -61,10 +61,10 @@ function draw() {
 	handleMouseClick();
 
 	for (let p of particleSet) {
-		p.show();
 		if (!paused) {
 			p.update();
 		}
+		p.show();
 	}
 
 	fr.html(floor(averageFrameRate()));
@@ -126,15 +126,19 @@ handleMouseClick = function () {
 	}
 
 	performSelectedAction = function (action, x, y) {
+		let p;
 		switch (action) {
 			case 'Sand':
-				new SandParticle(x, y);
+				p = new SandParticle(x, y);
+				p.show()
 				break;
 			case 'Wall':
-				new WallParticle(x, y);
+				p = new WallParticle(x, y);
+				p.show()
 				break;
 			case 'Water':
-				new WaterParticle(x, y);
+				p = new WaterParticle(x, y);
+				p.show()
 				break;
 			case 'Delete':
 				grid[x][y] = false;
