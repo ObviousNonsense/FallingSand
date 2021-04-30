@@ -62,7 +62,7 @@ function draw() {
 	frameRate(frSlider.value())
 	background(0);
 
-	brushSizeDisplay.html(brushSizeSlider.value());
+	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 
 	handleMouseClick();
 
@@ -73,7 +73,7 @@ function draw() {
 		p.show();
 	}
 
-	fr.html(floor(averageFrameRate()));
+	fr.html('Average FPS: ' + floor(averageFrameRate()));
 	// noLoop();
 }
 
