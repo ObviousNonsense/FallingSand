@@ -18,12 +18,14 @@ let canvasContext;
 
 function setup() {
 
-	createCanvas(pixelsPerParticle * gridWidth,
+	let p5canvas = createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
 	// pixelDensity(1);
+	p5canvas.parent('canvas-div');
 	canvas = document.getElementById('defaultCanvas0');
 	canvasContext = canvas.getContext('2d');
 	radio = createRadio();
+	radio.parent('gui-div');
 	radio.option('Sand');
 	radio.option('Wall');
 	radio.option('Water');
@@ -31,15 +33,23 @@ function setup() {
 	radio.selected('Sand');
 
 	brushSizeDisplay = createDiv('');
+	brushSizeDisplay.parent('gui-div');
+
 	brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 2, 1);
+	brushSizeSlider.parent('gui-div');
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
+	brushReplaceCheckbox.parent('gui-div');
+
 
 	pauseButton = createButton('Pause');
+	pauseButton.parent('gui-div');
 	pauseButton.mouseClicked(pauseSim);
 
 	frSlider = createSlider(1, 60, 60, 1);
+	frSlider.parent('gui-div');
 
 	fr = createP('');
+	fr.parent('gui-div');
 	frHistory = new Array(60);
 
 	for (let x = 0; x < gridWidth; x++) {
