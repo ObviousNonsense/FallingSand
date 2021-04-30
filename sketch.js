@@ -31,7 +31,7 @@ function setup() {
 	radio.selected('Sand');
 
 	brushSizeDisplay = createDiv('');
-	brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 1, 1);
+	brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 2, 1);
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
 
 	pauseButton = createButton('Pause');
