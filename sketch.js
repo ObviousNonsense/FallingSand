@@ -1,8 +1,8 @@
 let pixelsPerParticle = 4;
 let grid = [];
 let particleSet = new Set();
-let gridWidth = 120;
-let gridHeight = 120;
+let gridWidth = 150;
+let gridHeight = 150;
 let frHistory = [];
 let frHistoryIndex = 0;
 let fr;
@@ -15,6 +15,7 @@ let brushSizeDisplay;
 let brushReplaceCheckbox;
 let canvas;
 let canvasContext;
+let numParticleDisplay;
 
 function setup() {
 
@@ -52,6 +53,9 @@ function setup() {
 	fr = createP('');
 	fr.parent('gui-div');
 	frHistory = new Array(60);
+
+	numParticleDisplay = createP('');
+	numParticleDisplay.parent('gui-div');
 
 	for (let x = 0; x < gridWidth; x++) {
 		grid[x] = [];
@@ -94,6 +98,7 @@ function draw() {
 	canvasContext.restore();
 
 	fr.html('Average FPS: ' + floor(averageFrameRate()));
+	numParticleDisplay.html('Number of Particles: ' + particleSet.size);
 	// noLoop();
 }
 
