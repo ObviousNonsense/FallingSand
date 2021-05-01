@@ -5,8 +5,9 @@ class Particle {
         grid[x][y] = this;
         particleSet.add(this);
         // this.color = color(0);
-        this.color = '#000000';
+        this.color = '#FFFFFF';
         this.weight = Infinity;
+        this.indestructible = false;
         // this.show();
     }
 
@@ -28,18 +29,19 @@ class Particle {
         return false;
     }
 
-    tryGridPosition = function (x, y, trySwap=true) {
+    tryGridPosition = function (x, y, trySwap = true) {
         let p = grid[x][y];
         if (!p) {
             this.moveToGridPosition(x, y);
             return true;
         }
-        // else if (trySwap && y > this.y && p.weight < this.weight) {
-        else if (trySwap && y > this.y && random() > p.weight/this.weight) {
-        // if (random() > p.weight/this.weight){
+        else if (!p.interact(this)) {
+            if (trySwap && y > this.y && random() > p.weight / this.weight) {
+                // if (random() > p.weight/this.weight){
                 this.displaceParticle(p);
                 return true;
-            // }
+                // }
+            }
         }
         return false;
     }
@@ -81,13 +83,57 @@ class Particle {
         grid[tempX][tempY] = this;
         // this.update();
     }
+
+    interact = function (otherParticle) {
+        return false;
+    }
 }
+
+
+class BlackHoleParticle extends Particle {
+    constructor(x, y) {
+        super(x, y);
+        this.color = '#000000';
+        this.indestructible = true;
+        this.neighbourList = [
+            [-1, -1],
+            [-1, +1],
+            [+1, -1],
+            [+1, +1]
+        ]
+    }
+
+    // interact = function (otherParticle) {
+    //     particleSet.delete(otherParticle);
+    //     grid[otherParticle.x][otherParticle.y] = false;
+    //     return true;
+    // }
+
+    update = function() {
+        let d = random(this.neighbourList);
+        let neighbour = grid[this.x + d[0]][this.y + d[1]];
+        if (neighbour && !neighbour.indestructible) {
+            particleSet.delete(neighbour);
+            grid[neighbour.x][neighbour.y] = false;
+        }
+    }
+}
+
 
 class WallParticle extends Particle {
     constructor(x, y) {
         super(x, y);
-        this.color = '#41444a';
+        this.color = '#626770';
         // this.color = color(65, 68, 74);
+    }
+}
+
+
+class IndestructibleWallParticle extends WallParticle {
+    constructor(x, y) {
+        super(x, y);
+        this.color = '#6C727B';
+        this.indestructible = true;
     }
 }
 

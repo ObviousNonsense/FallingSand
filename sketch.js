@@ -29,6 +29,7 @@ function setup() {
 	radio.option('Sand');
 	radio.option('Wall');
 	radio.option('Water');
+	radio.option('Sink')
 	radio.option('Delete');
 	radio.selected('Sand');
 
@@ -57,7 +58,7 @@ function setup() {
 		for (let y = 0; y < gridHeight; y++) {
 			grid[x][y] = false;
 			if (y === 0 || y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
-				new WallParticle(x, y);
+				new IndestructibleWallParticle(x, y);
 			}
 		}
 	}
@@ -71,9 +72,9 @@ function setup() {
 function draw() {
 	frameRate(frSlider.value())
 	canvasContext.save()
-	background(0);
-	canvasContext.fillStyle = '#000000'
-	canvasContext.rect(0, 0, width, height);
+	background(51);
+	// canvasContext.fillStyle = '#000000'
+	// canvasContext.rect(0, 0, width, height);
 
 	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 
@@ -144,22 +145,26 @@ handleMouseClick = function () {
 			}
 		}
 	}
+}
 
-	performSelectedAction = function (action, x, y) {
-		let p;
-		switch (action) {
-			case 'Sand':
-				p = new SandParticle(x, y);
-				break;
-			case 'Wall':
-				p = new WallParticle(x, y);
-				break;
-			case 'Water':
-				p = new WaterParticle(x, y);
-				break;
-			case 'Delete':
-				grid[x][y] = false;
-				break;
-		}
+
+performSelectedAction = function (action, x, y) {
+	let p;
+	switch (action) {
+		case 'Sand':
+			p = new SandParticle(x, y);
+			break;
+		case 'Wall':
+			p = new WallParticle(x, y);
+			break;
+		case 'Water':
+			p = new WaterParticle(x, y);
+			break;
+		case 'Sink':
+			p = new BlackHoleParticle(x, y);
+			break;
+		case 'Delete':
+			grid[x][y] = false;
+			break;
 	}
 }
