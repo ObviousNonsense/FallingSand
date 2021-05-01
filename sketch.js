@@ -71,8 +71,6 @@ function setup() {
 
 function draw() {
 	frameRate(frSlider.value())
-	canvasContext.save()
-	background(51);
 	// canvasContext.fillStyle = '#000000'
 	// canvasContext.rect(0, 0, width, height);
 
@@ -83,6 +81,13 @@ function draw() {
 		if (!paused) {
 			p.update();
 		}
+	}
+
+	canvasContext.save()
+	background(51);
+
+	// Separate loop for showing because sometimes particles will be moved by others after they update
+	for (let p of particleSet) {
 		p.show();
 	}
 
