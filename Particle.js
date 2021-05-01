@@ -96,10 +96,10 @@ class BlackHoleParticle extends Particle {
         this.color = '#000000';
         this.indestructible = true;
         this.neighbourList = [
-            [-1, -1],
-            [-1, +1],
-            [+1, -1],
-            [+1, +1]
+            [0, -1],
+            [0, +1],
+            [+1, 0],
+            [-1, 0]
         ]
     }
 
