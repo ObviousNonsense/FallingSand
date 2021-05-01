@@ -1,8 +1,8 @@
 let pixelsPerParticle = 4;
 let grid = [];
 let particleSet = new Set();
-let gridWidth = 150;
-let gridHeight = 150;
+let gridWidth = 100;
+let gridHeight = 100;
 let frHistory = [];
 let frHistoryIndex = 0;
 let fr;
