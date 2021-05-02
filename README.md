@@ -6,6 +6,7 @@ Just a basic falling sand simulator I'm making for fun to practise p5/processing
 
 ##  To Do:
 - Clean up UI
+    - Make elements explicitly in HTML, then find/assign them in script
 - Add button to reset sim
 - Add button to resize canvas
 - Add Particle types:

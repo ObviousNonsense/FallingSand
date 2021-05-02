@@ -178,7 +178,7 @@ class WaterParticle extends Particle {
     constructor(x, y) {
         super(x, y);
         // this.color = color(43, 100, 195);
-        this.color = random(['#2b64c3', '#2E68CA', '255FC0']);
+        this.color = random(['#2b64c3', '#2E68CA', '#255FC0']);
         this.weight = 1;
         this.updateList = [
             [+0, +1],

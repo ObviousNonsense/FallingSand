@@ -5,7 +5,7 @@ let gridWidth = 100;
 let gridHeight = 100;
 let frHistory = [];
 let frHistoryIndex = 0;
-let fr;
+let frDisplay;
 let radio;
 let pauseButton;
 let frSlider;
@@ -26,13 +26,22 @@ const PARTICLE_TYPES = {
 
 function setup() {
 
+	// ******************** SETUP UI ********************
+
+	// Create p5 Canvas
 	let p5canvas = createCanvas(pixelsPerParticle * gridWidth,
 		pixelsPerParticle * gridHeight);
 	// pixelDensity(1);
+
+	// Add the canvas to the page
 	p5canvas.parent('canvas-div');
+
+	// Initialize native JS/HTML5 canvas object, since writing basic rectangles
+	// to it is faster than using p5
 	canvas = document.getElementById('defaultCanvas0');
 	canvasContext = canvas.getContext('2d');
 
+	// Radio buttons for selecting particle type to draw
 	radio = createRadio();
 	radio.parent('gui-div');
 	for (let p in PARTICLE_TYPES) {
@@ -41,6 +50,7 @@ function setup() {
 	radio.option('Delete');
 	radio.selected('Sand');
 
+	// Other Various UI elements:
 	brushSizeDisplay = createDiv('');
 	brushSizeDisplay.parent('gui-div');
 
@@ -49,7 +59,6 @@ function setup() {
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
 	brushReplaceCheckbox.parent('gui-div');
 
-
 	pauseButton = createButton('Pause');
 	pauseButton.parent('gui-div');
 	pauseButton.mouseClicked(pauseSim);
@@ -57,27 +66,32 @@ function setup() {
 	frSlider = createSlider(1, 60, 60, 1);
 	frSlider.parent('gui-div');
 
-	fr = createP('');
-	fr.parent('gui-div');
+	frDisplay = createP('');
+	frDisplay.parent('gui-div');
 	frHistory = new Array(60);
 
 	numParticleDisplay = createP('');
 	numParticleDisplay.parent('gui-div');
 
+
+	// ******************** SETUP WORLD ********************
 	for (let x = 0; x < gridWidth; x++) {
 		grid[x] = [];
 		for (let y = 0; y < gridHeight; y++) {
+
+			// Initialize most grid positions to false
 			grid[x][y] = false;
+
+			// Initialize boundaries to indestructible walls so I don't ever
+			// have to check if we're looking outside the array bounds
 			if (y === 0 || y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
 				new IndestructibleWallParticle(x, y);
 			}
 		}
 	}
 
-	// new WaterParticle(5, 5);
-	noStroke();
-	// strokeWeight(1);
-	// stroke(0, 10);
+
+	// noStroke();
 }
 
 function draw() {
@@ -104,7 +118,7 @@ function draw() {
 
 	canvasContext.restore();
 
-	fr.html('Average FPS: ' + floor(averageFrameRate()));
+	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
 	numParticleDisplay.html('Number of Particles: ' + particleSet.size);
 	// noLoop();
 }
@@ -172,21 +186,4 @@ performSelectedAction = function (action, x, y) {
 	else {
 		new PARTICLE_TYPES[action](x, y);
 	}
-	// switch (action) {
-	// 	case 'Sand':
-	// 		p = new SandParticle(x, y);
-	// 		break;
-	// 	case 'Wall':
-	// 		p = new WallParticle(x, y);
-	// 		break;
-	// 	case 'Water':
-	// 		p = new WaterParticle(x, y);
-	// 		break;
-	// 	case 'Sink':
-	// 		p = new BlackHoleParticle(x, y);
-	// 		break;
-	// 	case 'Delete':
-	// 		grid[x][y] = false;
-	// 		break;
-	// }
 }
