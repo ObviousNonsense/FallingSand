@@ -17,6 +17,13 @@ let canvas;
 let canvasContext;
 let numParticleDisplay;
 
+const PARTICLE_TYPES = {
+	'Sand': SandParticle,
+	'Water': WaterParticle,
+	'Wall': WallParticle,
+	'Sink': BlackHoleParticle
+}
+
 function setup() {
 
 	let p5canvas = createCanvas(pixelsPerParticle * gridWidth,
@@ -25,12 +32,12 @@ function setup() {
 	p5canvas.parent('canvas-div');
 	canvas = document.getElementById('defaultCanvas0');
 	canvasContext = canvas.getContext('2d');
+
 	radio = createRadio();
 	radio.parent('gui-div');
-	radio.option('Sand');
-	radio.option('Wall');
-	radio.option('Water');
-	radio.option('Sink')
+	for (let p in PARTICLE_TYPES) {
+		radio.option(p);
+	}
 	radio.option('Delete');
 	radio.selected('Sand');
 
@@ -159,22 +166,27 @@ handleMouseClick = function () {
 
 
 performSelectedAction = function (action, x, y) {
-	let p;
-	switch (action) {
-		case 'Sand':
-			p = new SandParticle(x, y);
-			break;
-		case 'Wall':
-			p = new WallParticle(x, y);
-			break;
-		case 'Water':
-			p = new WaterParticle(x, y);
-			break;
-		case 'Sink':
-			p = new BlackHoleParticle(x, y);
-			break;
-		case 'Delete':
-			grid[x][y] = false;
-			break;
+	if (action === 'Delete') {
+		grid[x][y] = false;
 	}
+	else {
+		new PARTICLE_TYPES[action](x, y);
+	}
+	// switch (action) {
+	// 	case 'Sand':
+	// 		p = new SandParticle(x, y);
+	// 		break;
+	// 	case 'Wall':
+	// 		p = new WallParticle(x, y);
+	// 		break;
+	// 	case 'Water':
+	// 		p = new WaterParticle(x, y);
+	// 		break;
+	// 	case 'Sink':
+	// 		p = new BlackHoleParticle(x, y);
+	// 		break;
+	// 	case 'Delete':
+	// 		grid[x][y] = false;
+	// 		break;
+	// }
 }
