@@ -20,3 +20,43 @@ body {
 canvas {
   display: block;
 }
+
+:root {
+  --button-color: #ad2bee;
+  --button-bg-color: #202020;
+  --button-checked-color: #544d57;
+  --button-border-width: 3px;
+}
+/* $bg: #332f35; */
+/* $fg: lighten($bg,20%); */
+/* $borderWidth: 3px; */
+
+input[type=radio] {
+  position: absolute;
+  visibility: hidden;
+  display: none;
+}
+
+label {
+  color: var(--button-color);
+  display: inline-block;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px 20px;
+}
+
+input[type=radio]:checked + label{
+  filter: brightness(200%)
+}
+
+label + input[type=radio] + label {
+  border-left: solid var(--button-border-width) var(--button-checked-color);
+}
+.radio-group {
+  border: solid var(--button-border-width) var(--button-checked-color);
+  display: inline-block;
+  margin: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: var(--button-bg-color);
+}

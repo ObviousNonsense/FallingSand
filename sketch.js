@@ -42,12 +42,20 @@ function setup() {
 	canvasContext = canvas.getContext('2d');
 
 	// Radio buttons for selecting particle type to draw
-	radio = createRadio();
+	radio = createRadio(document.getElementById('particle-selector'));
+	// radio = createRadio();
+	// radio.id('particle-selector')
+	// radio = select('#particle-selector');
+	// radio.parent('particle-selector');
+
 	radio.parent('gui-div');
-	for (let p in PARTICLE_TYPES) {
-		radio.option(p);
-	}
-	radio.option('Delete');
+	// radio.addClass('radio-group');
+	// for (let p in PARTICLE_TYPES) {
+	// 	radio.option(p);
+	// 	// let elmt = radio.option(p);
+	// 	// elmt.id(p);
+	// }
+	// radio.option('Delete');
 	radio.selected('Sand');
 
 	// Other Various UI elements:
