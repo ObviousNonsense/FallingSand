@@ -36,7 +36,7 @@ class Particle {
             return true;
         }
         else if (!p.interact(this)) {
-            if (trySwap && y > this.y && random() > p.weight / this.weight) {
+            if (trySwap && y > this.y && random() > p.weight / (this.weight)) {
                 // if (random() > p.weight/this.weight){
                 this.displaceParticle(p);
                 return true;
@@ -123,7 +123,7 @@ class BlackHoleParticle extends Particle {
 class WallParticle extends Particle {
     constructor(x, y) {
         super(x, y);
-        this.color = '#626770';
+        this.color = random(['#626770', '#575D69']);
         // this.color = color(65, 68, 74);
     }
 }
@@ -141,7 +141,7 @@ class IndestructibleWallParticle extends WallParticle {
 class SandParticle extends Particle {
     constructor(x, y) {
         super(x, y);
-        this.color = '#e5b55f';
+        this.color = random(['#e5b55f', '#D29D3F', '#E9BB69']);
         // this.color = color(229, 181, 95);
         this.weight = 2;
         this.updateList = [
@@ -178,7 +178,7 @@ class WaterParticle extends Particle {
     constructor(x, y) {
         super(x, y);
         // this.color = color(43, 100, 195);
-        this.color = '#2b64c3';
+        this.color = random(['#2b64c3', '#2E68CA', '255FC0']);
         this.weight = 1;
         this.updateList = [
             [+0, +1],
