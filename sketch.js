@@ -43,19 +43,22 @@ function setup() {
 
 	// Radio buttons for selecting particle type to draw
 	radio = createRadio(document.getElementById('particle-selector'));
-	// radio = createRadio();
-	// radio.id('particle-selector')
-	// radio = select('#particle-selector');
-	// radio.parent('particle-selector');
-
 	radio.parent('gui-div');
-	// radio.addClass('radio-group');
-	// for (let p in PARTICLE_TYPES) {
-	// 	radio.option(p);
-	// 	// let elmt = radio.option(p);
-	// 	// elmt.id(p);
-	// }
-	// radio.option('Delete');
+
+	for (let p in PARTICLE_TYPES) {
+		let option = document.createElement('input');
+		option.type = 'radio';
+		option.id = p;
+		option.value = p;
+		radio.child(option);
+
+		let optionLabel = document.createElement('label');
+		optionLabel.htmlFor = p;
+		radio.child(optionLabel);
+
+		radio.option(p);
+	}
+	radio.option('Delete');
 	radio.selected('Sand');
 
 	// Other Various UI elements:
