@@ -1,10 +1,20 @@
 class Particle {
+
+    static BASE_COLOR = '#FFFFFF';
+
     constructor(x, y) {
         this.x = x;
         this.y = y;
         grid[x][y] = this;
         particleSet.add(this);
-        this.color = '#FFFFFF';
+
+        this.color = this.constructor.BASE_COLOR;
+
+        // let c = this.constructor.BASE_COLOR;
+        // this.color = random([
+        //     c,
+        //     adjustHSBofString(c, 1, 0.95, 1.05)
+        // ]);
     }
 
     show = function () {
@@ -24,9 +34,12 @@ class Particle {
 
 
 class ParticleSink extends Particle {
+
+    static BASE_COLOR = '#000000';
+
     constructor(x, y) {
         super(x, y);
-        this.color = '#000000';
+        // this.color = '#000000';
         this.indestructible = true;
         this.neighbourList = [
             [0, -1],
@@ -49,27 +62,34 @@ class ParticleSink extends Particle {
 
 
 class WallParticle extends Particle {
+
+    static BASE_COLOR = '#626770';
+
     constructor(x, y) {
         super(x, y);
-        this.color = random(['#626770', '#575D69']);
+        // this.color = random(['#626770', '#575D69']);
         // this.color = color(65, 68, 74);
     }
 }
 
 
 class IndestructibleWallParticle extends WallParticle {
+
+    static BASE_COLOR = '#6C727B';
+
     // These are the particles used to define the border of the world so I don't
     // have to worry about checking the edges of the array. They are
     // indesctructible so sinks can't destroy them.
     constructor(x, y) {
         super(x, y);
-        this.color = '#6C727B';
+        // this.color = '#6C727B';
         this.indestructible = true;
     }
 }
 
 
 class ParticleSource extends Particle {
+
     constructor(x, y, sourceType) {
         super(x, y);
         this.particleType = sourceType;
@@ -175,9 +195,12 @@ class MoveableParticle extends Particle {
 
 
 class SandParticle extends MoveableParticle {
+
+    static BASE_COLOR = '#e5b55f';
+
     constructor(x, y) {
         super(x, y);
-        this.color = random(['#e5b55f', '#D29D3F', '#E9BB69']);
+        // this.color = random(['#e5b55f', '#D29D3F', '#E9BB69']);
         // this.color = color(229, 181, 95);
         this.weight = 2;
         this.updateList = [
@@ -211,10 +234,13 @@ class SandParticle extends MoveableParticle {
 
 
 class WaterParticle extends MoveableParticle {
+
+    static BASE_COLOR = '#2b64c3';
+
     constructor(x, y) {
         super(x, y);
         // this.color = color(43, 100, 195);
-        this.color = random(['#2b64c3', '#2E68CA', '#255FC0']);
+        // this.color = random(['#2b64c3', '#2E68CA', '#255FC0']);
         this.weight = 1;
         this.updateList = [
             [+0, +1],
@@ -247,4 +273,13 @@ class WaterParticle extends MoveableParticle {
         }
         return moved;
     }
+}
+
+
+adjustHSBofString = function(colorString, scaleH, scaleS, scaleB) {
+	let c = color(colorString);
+    colorMode(HSB);
+	c = color(hue(c)*scaleH, saturation(c)*scaleS, brightness(c)*scaleB);
+	// colorMode(RGB);
+	return c.toString('#rrggbb')
 }

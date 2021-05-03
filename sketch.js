@@ -19,9 +19,9 @@ let numParticleDisplay;
 
 const PARTICLE_TYPES = {
 	'Sand': SandParticle,
-	'Sand Source': function(x, y) {return new ParticleSource(x, y, SandParticle)},
+	// 'Sand Source': function(x, y) {return new ParticleSource(x, y, SandParticle)},
 	'Water': WaterParticle,
-	'Water Source': function(x, y) {return new ParticleSource(x, y, WaterParticle)},
+	// 'Water Source': function(x, y) {return new ParticleSource(x, y, WaterParticle)},
 	'Wall': WallParticle,
 	'Sink': ParticleSink
 }
@@ -123,7 +123,7 @@ function draw() {
 	}
 
 	canvasContext.save()
-	background(51);
+	background('#333333');
 
 	// Separate loop for showing because sometimes particles will be moved by others after they update
 	for (let p of particleSet) {
