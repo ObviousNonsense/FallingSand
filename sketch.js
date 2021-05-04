@@ -1,20 +1,42 @@
+// World size, particle containers, etc
 let pixelsPerParticle = 4;
-let grid = [];
-let particleSet = new Set();
 let gridWidth = 100;
 let gridHeight = 100;
+let grid = [];
+let particleSet = new Set();
+
+// For p5.touchgui
+let gui;
+let guiWidth;
+let guiHeight = 200;
+let gui_y0 = pixelsPerParticle * gridHeight;
+let sandButton;
+let waterButton;
+let wallButton;
+let sinkButton;
+
+let particleButtonArray = new Array(4);
+// 	sandButton,
+// 	waterButton,
+// 	wallButton,
+// 	sinkButton
+// ]
+
+// HTML5 canvas
+let canvas;
+let canvasContext;
+
+// GUI elements and related
+let frDisplay;
 let frHistory = [];
 let frHistoryIndex = 0;
-let frDisplay;
 let radio;
 let pauseButton;
-let frSlider;
 let paused = false;
+let frSlider;
 let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
-let canvas;
-let canvasContext;
 let numParticleDisplay;
 
 const PARTICLE_TYPES = {
@@ -29,11 +51,11 @@ const PARTICLE_TYPES = {
 
 function setup() {
 
-	// ******************** SETUP UI ********************
+	// ******************** SETUP CANVAS ********************
 
 	// Create p5 Canvas
 	let p5canvas = createCanvas(pixelsPerParticle * gridWidth,
-		pixelsPerParticle * gridHeight);
+		pixelsPerParticle * gridHeight + guiHeight);
 	// pixelDensity(1);
 
 	// Add the canvas to the page
@@ -44,48 +66,84 @@ function setup() {
 	canvas = document.getElementById('defaultCanvas0');
 	canvasContext = canvas.getContext('2d');
 
-	// Radio buttons for selecting particle type to draw
-	radio = createRadio(document.getElementById('particle-selector'));
-	radio.parent('gui-div');
-
+	// ******************** SETUP GUI ********************
+	guiWidth = width;
+	gui = createGui();
+	let particleButtonWidth = guiWidth / particleButtonArray.length;
+	// b = createToggle('Sand', 0, 400, 100, 50);
+	// b.labelOff = "test";
+	// b.val = true;
+	let i = 0;
 	for (let p in PARTICLE_TYPES) {
-		let option = document.createElement('input');
-		option.type = 'radio';
-		option.id = p;
-		option.value = p;
-		radio.child(option);
-
-		let optionLabel = document.createElement('label');
-		optionLabel.htmlFor = p;
-		radio.child(optionLabel);
-
-		radio.option(p);
+		particleButtonArray[i] = createToggle(
+			p,
+			2 + i * particleButtonWidth,
+			2 + gui_y0,
+			particleButtonWidth - 4,
+			guiHeight/4
+		);
+		let toggleStyle = {
+			rounding: 0,
+			fillBgOff: color(PARTICLE_TYPES[p].BASE_COLOR),
+			fillBgOffHover: color(PARTICLE_TYPES[p].BASE_COLOR),
+			fillBgOffActive: color(PARTICLE_TYPES[p].BASE_COLOR),
+			fillBgOn: color(PARTICLE_TYPES[p].BASE_COLOR),
+			fillBgOnHover: color(PARTICLE_TYPES[p].BASE_COLOR),
+			fillBgOnActive: color(PARTICLE_TYPES[p].BASE_COLOR),
+			strokeWeight: 8,
+			strokeBgOff: color(0, 0),
+			strokeBgOffHover: color(255, 50),
+			strokeBgOffActive: color(255, 100),
+			strokeBgOnHover: color(255, 150),
+			strokeBgOnActive: color(255, 100),
+			strokeBgOn: color(255, 200)
+		}
+		particleButtonArray[i].setStyle(toggleStyle);
+		i++;
 	}
-	radio.option('Delete');
-	radio.selected('Sand');
 
-	// Other Various UI elements:
-	brushSizeDisplay = createDiv('');
-	brushSizeDisplay.parent('gui-div');
+	// Radio buttons for selecting particle type to draw
+	// radio = createRadio(document.getElementById('particle-selector'));
+	// radio.parent('gui-div');
 
-	brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 2, 1);
-	brushSizeSlider.parent('gui-div');
-	brushReplaceCheckbox = createCheckbox('Replace?', true)
-	brushReplaceCheckbox.parent('gui-div');
+	// for (let p in PARTICLE_TYPES) {
+	// 	let option = document.createElement('input');
+	// 	option.type = 'radio';
+	// 	option.id = p;
+	// 	option.value = p;
+	// 	radio.child(option);
 
-	pauseButton = createButton('Pause');
-	pauseButton.parent('gui-div');
-	pauseButton.mouseClicked(pauseSim);
+	// 	let optionLabel = document.createElement('label');
+	// 	optionLabel.htmlFor = p;
+	// 	radio.child(optionLabel);
 
-	frSlider = createSlider(1, 60, 60, 1);
-	frSlider.parent('gui-div');
+	// 	radio.option(p);
+	// }
+	// radio.option('Delete');
+	// radio.selected('Sand');
 
-	frDisplay = createP('');
-	frDisplay.parent('gui-div');
-	frHistory = new Array(60);
+	// // Other Various UI elements:
+	// brushSizeDisplay = createDiv('');
+	// brushSizeDisplay.parent('gui-div');
 
-	numParticleDisplay = createP('');
-	numParticleDisplay.parent('gui-div');
+	// brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 2, 1);
+	// // brushSizeSlider.parent('gui-div');
+	// brushReplaceCheckbox = createCheckbox('Replace?', true)
+	// // brushReplaceCheckbox.parent('gui-div');
+
+	// pauseButton = createButton('Pause');
+	// // pauseButton.parent('gui-div');
+	// // pauseButton.mouseClicked(pauseSim);
+
+	// frSlider = createSlider(1, 60, 60, 1);
+	// // frSlider.parent('gui-div');
+
+	// frDisplay = createP('');
+	// frDisplay.parent('gui-div');
+	// frHistory = new Array(60);
+
+	// numParticleDisplay = createP('');
+	// numParticleDisplay.parent('gui-div');
 
 
 	// ******************** SETUP WORLD ********************
@@ -109,11 +167,9 @@ function setup() {
 }
 
 function draw() {
-	frameRate(frSlider.value())
-	// canvasContext.fillStyle = '#000000'
-	// canvasContext.rect(0, 0, width, height);
+	// frameRate(frSlider.value())
 
-	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
+	// brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 
 	handleMouseClick();
 	for (let p of particleSet) {
@@ -124,6 +180,8 @@ function draw() {
 
 	canvasContext.save()
 	background('#333333');
+	colorMode(RGB);
+	drawGui();
 
 	// Separate loop for showing because sometimes particles will be moved by others after they update
 	for (let p of particleSet) {
@@ -132,9 +190,10 @@ function draw() {
 
 	canvasContext.restore();
 
-	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
-	numParticleDisplay.html('Number of Particles: ' + particleSet.size);
+	// frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
+	// numParticleDisplay.html('Number of Particles: ' + particleSet.size);
 	// noLoop();
+
 }
 
 
@@ -165,7 +224,8 @@ handleMouseClick = function () {
 
 		if (x <= gridWidth - 2 && x >= 1 && y <= gridHeight - 2 && y >= 1) {
 
-			let brushSize = brushSizeSlider.value();
+			// let brushSize = brushSizeSlider.value();
+			let brushSize = 2;
 			let imin = floor(-0.5 * (brushSize - 1));
 
 			for (i = imin; i < imin + brushSize; i++) {
@@ -174,9 +234,11 @@ handleMouseClick = function () {
 					let iy = y + j;
 					if (ix <= gridWidth - 2 && ix >= 1 && iy <= gridHeight - 2 && iy >= 1) {
 						let p = grid[ix][iy];
-						let action = radio.value();
+						// let action = radio.value();
+						let action = 'Sand';
 						if (p) {
-							if (brushReplaceCheckbox.checked() || action === 'Delete') {
+							// if (brushReplaceCheckbox.checked() || action === 'Delete') {
+							if (action === 'Delete') {
 								particleSet.delete(p);
 								performSelectedAction(action, ix, iy);
 							}
@@ -200,4 +262,11 @@ performSelectedAction = function (action, x, y) {
 	else {
 		new PARTICLE_TYPES[action](x, y);
 	}
+}
+
+
+/// Add these lines below sketch to prevent scrolling on mobile
+function touchMoved() {
+	// do some stuff
+	return false;
 }
