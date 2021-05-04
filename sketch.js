@@ -10,10 +10,6 @@ let gui;
 let guiWidth;
 let guiHeight = 200;
 let gui_y0 = pixelsPerParticle * gridHeight;
-let sandButton;
-let waterButton;
-let wallButton;
-let sinkButton;
 
 let particleButtonArray = new Array(4);
 // 	sandButton,
@@ -48,6 +44,13 @@ const PARTICLE_TYPES = {
 	'Sink': ParticleSink
 }
 
+function particleButtonPressed(label) {
+	for (let i = 0; i < particleButtonArray.length; i++) {
+		if (particleButtonArray[i].label != label) {
+			particleButtonArray[i].val = false;
+		}
+	}
+}
 
 function setup() {
 
@@ -99,6 +102,9 @@ function setup() {
 			strokeBgOn: color(255, 200)
 		}
 		particleButtonArray[i].setStyle(toggleStyle);
+		particleButtonArray[i].onPress = function() {
+			particleButtonPressed(p);
+		};
 		i++;
 	}
 
