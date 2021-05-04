@@ -11,7 +11,7 @@ let guiWidth;
 let guiHeight = 200;
 let gui_y0 = pixelsPerParticle * gridHeight;
 
-let particleButtonArray = new Array(4);
+let particleButtonArray = new Array(5);
 let activeAction = 'Sand';
 // 	sandButton,
 // 	waterButton,
@@ -76,6 +76,7 @@ function setup() {
 	guiWidth = width;
 	gui = createGui();
 	let particleButtonWidth = guiWidth / particleButtonArray.length;
+	let particleButtonHeight = guiHeight / 4;
 	// b = createToggle('Sand', 0, 400, 100, 50);
 	// b.labelOff = "test";
 	// b.val = true;
@@ -84,10 +85,10 @@ function setup() {
 	for (let p in PARTICLE_TYPES) {
 		particleButtonArray[i] = createToggle(
 			p,
-			sw/2 + i * particleButtonWidth,
-			sw/2 + gui_y0,
+			sw / 2 + i * particleButtonWidth,
+			sw / 2 + gui_y0,
 			particleButtonWidth - sw,
-			guiHeight / 4
+			particleButtonHeight
 		);
 
 		if (p === 'Sand') {
@@ -96,42 +97,29 @@ function setup() {
 
 		let buttonColor = color(PARTICLE_TYPES[p].BASE_COLOR);
 
-		let toggleStyle = {
-			rounding: 0,
-			fillBgOff: buttonColor,
-			fillBgOffHover: buttonColor,
-			fillBgOffActive: buttonColor,
-			fillBgOn: buttonColor,
-			fillBgOnHover: buttonColor,
-			fillBgOnActive: buttonColor,
-			strokeWeight: sw,
-			strokeBgOff: color(0, 50),
-			strokeBgOffHover: color(255, 50),
-			strokeBgOffActive: color(255, 100),
-			strokeBgOnHover: color(255, 150),
-			strokeBgOnActive: color(255, 100),
-			strokeBgOn: color(255, 200)
-		}
-		particleButtonArray[i].setStyle(toggleStyle);
-
-		if (brightness(buttonColor) < 0.5) {
-			let lightTextColor = color(200);
-			let labelStyle = {
-				fillLabelOff: lightTextColor,
-				fillLabelOffHover: lightTextColor,
-				fillLabelOffActive: lightTextColor,
-				fillLabelOn: lightTextColor,
-				fillLabelOnHover: lightTextColor,
-				fillLabelOnActive: lightTextColor
-			}
-			particleButtonArray[i].setStyle(labelStyle);
-		}
+		let s = generateToggleStyle(buttonColor, sw, brightness(buttonColor) < 0.5);
+		particleButtonArray[i].setStyle(s);
 
 		particleButtonArray[i].onPress = function () {
 			particleButtonPressed(p);
 		};
 		i++;
 	}
+
+	let end = particleButtonArray.length - 1;
+	particleButtonArray[end] = createToggle(
+		'Delete',
+		sw / 2 + end * particleButtonWidth,
+		sw / 2 + gui_y0,
+		particleButtonWidth - sw,
+		guiHeight / 4
+	);
+
+	let s = generateToggleStyle(color(50), sw, color(50) < 0.5);
+	particleButtonArray[end].setStyle(s);
+	particleButtonArray[end].onPress = function () {
+		particleButtonPressed('Delete');
+	};
 
 	// Radio buttons for selecting particle type to draw
 	// radio = createRadio(document.getElementById('particle-selector'));
@@ -293,6 +281,37 @@ performSelectedAction = function (action, x, y) {
 	else {
 		new PARTICLE_TYPES[action](x, y);
 	}
+}
+
+
+let generateToggleStyle = function(buttonColor, _strokeWeight, lightText) {
+	let s = {
+		rounding: 0,
+		fillBgOff: buttonColor,
+		fillBgOffHover: buttonColor,
+		fillBgOffActive: buttonColor,
+		fillBgOn: buttonColor,
+		fillBgOnHover: buttonColor,
+		fillBgOnActive: buttonColor,
+		strokeWeight: _strokeWeight,
+		strokeBgOff: color(0, 50),
+		strokeBgOffHover: color(255, 50),
+		strokeBgOffActive: color(255, 100),
+		strokeBgOnHover: color(255, 150),
+		strokeBgOnActive: color(255, 100),
+		strokeBgOn: color(255, 200)
+	}
+
+	if (lightText) {
+		let lightTextColor = color(200);
+		s.fillLabelOff = lightTextColor;
+		s.fillLabelOffHover = lightTextColor;
+		s.fillLabelOffActive = lightTextColor;
+		s.fillLabelOn = lightTextColor;
+		s.fillLabelOnHover = lightTextColor;
+		s.fillLabelOnActive = lightTextColor;
+	}
+	return s;
 }
 
 
