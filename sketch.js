@@ -51,6 +51,9 @@ function particleButtonPressed(label) {
 		if (particleButtonArray[i].label != label) {
 			particleButtonArray[i].val = false;
 		}
+		else {
+			particleButtonArray[i].val = true;
+		}
 	}
 
 	activeAction = label;
@@ -84,6 +87,7 @@ function setup() {
 	let x0 = sw / 2;
 	let y0 = sw / 2 + gui_y0;
 
+	// ---------- Make Particle creation buttons ----------
 	for (let p in PARTICLE_TYPES) {
 		particleButtonArray[i] = createToggle(
 			p,
@@ -110,6 +114,7 @@ function setup() {
 		i++;
 	}
 
+	// ---------- Make Delete button ----------
 	let end = particleButtonArray.length - 1;
 	particleButtonArray[end] = createToggle(
 		'Delete',
@@ -125,6 +130,7 @@ function setup() {
 		particleButtonPressed('Delete');
 	};
 
+	// ---------- Make Replace Checkbox ----------
 	let checkboxHeight = particleButtonHeight * 3 / 4;
 	x0 = 0;
 	y0 = height - checkboxHeight;
@@ -168,7 +174,7 @@ function setup() {
 	// brushSizeDisplay.parent('gui-div');
 
 	// brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 2, 1);
-	// // brushSizeSlider.parent('gui-div');
+	// brushSizeSlider.parent('gui-div');
 	// brushReplaceCheckbox = createCheckbox('Replace?', true)
 	// // brushReplaceCheckbox.parent('gui-div');
 
