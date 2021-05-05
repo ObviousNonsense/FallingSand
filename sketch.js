@@ -1,5 +1,5 @@
 // World size, particle containers, etc
-let pixelsPerParticle = 4;
+let pixelsPerParticle = 5;
 let gridWidth = 100;
 let gridHeight = 100;
 let grid = [];
@@ -13,6 +13,8 @@ let gui_y0 = pixelsPerParticle * gridHeight;
 
 let particleButtonArray = new Array(5);
 let activeAction = 'Sand';
+let brushReplaceCheckbox;
+let brushReplaceCheckboxLabel;
 // 	sandButton,
 // 	waterButton,
 // 	wallButton,
@@ -33,7 +35,6 @@ let paused = false;
 let frSlider;
 let brushSizeSlider;
 let brushSizeDisplay;
-let brushReplaceCheckbox;
 let numParticleDisplay;
 
 const PARTICLE_TYPES = {
@@ -75,21 +76,24 @@ function setup() {
 	// ******************** SETUP GUI ********************
 	guiWidth = width;
 	gui = createGui();
-	let particleButtonWidth = guiWidth / particleButtonArray.length;
-	let particleButtonHeight = guiHeight / 4;
-	// b = createToggle('Sand', 0, 400, 100, 50);
-	// b.labelOff = "test";
-	// b.val = true;
 	let i = 0;
 	let sw = 8;
+	let particleButtonWidth = guiWidth / particleButtonArray.length;
+	let particleButtonHeight = guiHeight / 4;
+
+	let x0 = sw / 2;
+	let y0 = sw / 2 + gui_y0;
+
 	for (let p in PARTICLE_TYPES) {
 		particleButtonArray[i] = createToggle(
 			p,
-			sw / 2 + i * particleButtonWidth,
-			sw / 2 + gui_y0,
+			x0,
+			y0,
 			particleButtonWidth - sw,
 			particleButtonHeight
 		);
+
+		x0 += particleButtonWidth;
 
 		if (p === 'Sand') {
 			particleButtonArray[i].val = true;
@@ -109,8 +113,8 @@ function setup() {
 	let end = particleButtonArray.length - 1;
 	particleButtonArray[end] = createToggle(
 		'Delete',
-		sw / 2 + end * particleButtonWidth,
-		sw / 2 + gui_y0,
+		x0,
+		y0,
 		particleButtonWidth - sw,
 		guiHeight / 4
 	);
@@ -120,6 +124,24 @@ function setup() {
 	particleButtonArray[end].onPress = function () {
 		particleButtonPressed('Delete');
 	};
+
+	let checkboxHeight = particleButtonHeight * 3 / 4;
+	x0 = 0;
+	y0 = height - checkboxHeight;
+	brushReplaceCheckbox = createCheckbox('Replace?', x0, y0, checkboxHeight, checkboxHeight);
+	brushReplaceCheckbox.setStyle('rounding', 0);
+	brushReplaceCheckbox.val = true;
+
+	x0 += brushReplaceCheckbox.w;
+	brushReplaceCheckboxLabel = createButton('Replace?', x0, y0, undefined, checkboxHeight)
+
+	let labelStyle = {
+		rounding: 0,
+		fillBgHover: color(130, 130, 130, 255),
+		fillBgActive: color(130, 130, 130, 255)
+	}
+	brushReplaceCheckboxLabel.setStyle(labelStyle)
+
 
 	// Radio buttons for selecting particle type to draw
 	// radio = createRadio(document.getElementById('particle-selector'));
@@ -256,8 +278,8 @@ handleMouseClick = function () {
 						// let action = radio.value();
 						// let action = 'Sand';
 						if (p) {
-							// if (brushReplaceCheckbox.checked() || action === 'Delete') {
-							if (activeAction === 'Delete') {
+							if (brushReplaceCheckbox.val || activeAction === 'Delete') {
+								// if (activeAction === 'Delete') {
 								particleSet.delete(p);
 								performSelectedAction(activeAction, ix, iy);
 							}
@@ -284,7 +306,7 @@ performSelectedAction = function (action, x, y) {
 }
 
 
-let generateToggleStyle = function(buttonColor, _strokeWeight, lightText) {
+let generateToggleStyle = function (buttonColor, _strokeWeight, lightText) {
 	let s = {
 		rounding: 0,
 		fillBgOff: buttonColor,
