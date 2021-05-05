@@ -8,13 +8,15 @@ class Particle {
         grid[x][y] = this;
         particleSet.add(this);
 
-        this.color = this.constructor.BASE_COLOR;
+        // this.color = this.constructor.BASE_COLOR;
 
-        // let c = this.constructor.BASE_COLOR;
+        let c = this.constructor.BASE_COLOR;
         // this.color = random([
         //     c,
-        //     adjustHSBofString(c, 1, 0.95, 1.05)
+        //     adjustHSBofString(c, 1, 0.95, 1.05),
+        //     adjustHSBofString(c, 1, 1.05, 0.95)
         // ]);
+        this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
     }
 
     show = function () {

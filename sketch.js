@@ -201,3 +201,10 @@ performSelectedAction = function (action, x, y) {
 		new PARTICLE_TYPES[action](x, y);
 	}
 }
+
+
+/// Add these lines below sketch to prevent scrolling on mobile
+function touchMoved() {
+	// do some stuff
+	return false;
+}
