@@ -1,5 +1,5 @@
 html, body {
-  height: 100%;
+  /* height: 100%; */
   /* margin: 10;
   padding: 10; */
   background-color: #131622;
@@ -19,6 +19,18 @@ body {
 
 canvas {
   display: block;
+}
+
+[id=gui-div] {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+
+  justify-content: space-evenly;
+
+  /* This centers our sketch vertically. */
+  align-items: center;
+
 }
 
 :root {

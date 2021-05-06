@@ -167,18 +167,15 @@ class PlantParticle extends Particle {
                     let xnn = xn + dn[0];
                     let ynn = yn + dn[1];
                     if (grid[xnn][ynn] instanceof PlantParticle) {
-                        if (i < 4) {
-                            count += 1;
-                        }
-                        else {
-                            count += 0.5;
-                        }
+                        count++;
                     }
                 }
-                if (count < 2) {
+                if (count < 3) {
                     // If it doesn't, grow into it
-                    new PlantParticle(xn, yn);
-                    this.watered = false;
+                    if (random() > 0.5) {
+                        new PlantParticle(xn, yn);
+                        this.watered = false;
+                    }
                 }
             }
             else if (neighbour instanceof PlantParticle) {

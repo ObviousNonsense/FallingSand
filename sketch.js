@@ -1,4 +1,4 @@
-let pixelsPerParticle = 6;
+let pixelsPerParticle = 4;
 let grid = [];
 let particleSet = new Set();
 let gridWidth = 100;
@@ -202,10 +202,3 @@ performSelectedAction = function (action, x, y) {
 		new PARTICLE_TYPES[action](x, y);
 	}
 }
-
-
-// /// Add these lines below sketch to prevent scrolling on mobile
-// function touchMoved() {
-// 	// do some stuff
-// 	return false;
-// }

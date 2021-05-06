@@ -4,16 +4,23 @@ Just a basic falling sand simulator I'm making for fun to practise p5/processing
 
 [You can play with it here](https://obviousnonsense.github.io/FallingSand/)
 
-##  To Do:
-- Clean up UI
-    - Make elements explicitly in HTML, then find/assign them in script
+## Particle Types:
+- Sand: Falls. Piles up. Sinks in & displaces water.
+- Water: Flows.
+- Walls: Stop other things.
+- Plants: Consume water and grow in weird patterns.
+-
+
+## To Do:
 - Add button to reset sim
 - Add button to resize canvas
+- Clean up UI?
 - Add Particle types:
     - Generators
-        - Water
-        - Sand
-    - Plant/Wood: Consumes water and grows. Burns.
+        - <s>Water</s>
+        - <s>Sand</s>
+    - <s>Plant: Consumes water and grows.</s>
+    - Wood walls
     - Fire
     - Steam
     - Smoke
