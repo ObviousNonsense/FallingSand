@@ -1,4 +1,4 @@
-let pixelsPerParticle = 4;
+let pixelsPerParticle = 6;
 let grid = [];
 let particleSet = new Set();
 let gridWidth = 100;
@@ -22,6 +22,7 @@ const PARTICLE_TYPES = {
 	'Sand Source': function(x, y) {return new ParticleSource(x, y, SandParticle)},
 	'Water': WaterParticle,
 	'Water Source': function(x, y) {return new ParticleSource(x, y, WaterParticle)},
+	'Plant': PlantParticle,
 	'Wall': WallParticle,
 	'Sink': ParticleSink
 }

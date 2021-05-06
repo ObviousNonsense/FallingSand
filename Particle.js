@@ -117,6 +117,91 @@ class ParticleSource extends Particle {
 }
 
 
+class PlantParticle extends Particle {
+
+    static BASE_COLOR = '#338A1B';
+
+    constructor(x, y) {
+        super(x, y);
+        this.color_watered = this.color;
+        this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
+        this.watered = false;
+        this.neighbourList = [
+            [0, -1],
+            [0, +1],
+            [+1, 0],
+            [-1, 0],
+            [-1, -1],
+            [+1, +1],
+            [+1, -1],
+            [-1, +1]
+        ]
+    }
+
+    set watered(w) {
+        this._watered = w;
+        if (w) {
+            this.color = this.color_watered;
+        }
+        else {
+            this.color = this.color_dry;
+        }
+    }
+
+    get watered() {
+        return this._watered;
+    }
+
+    update = function () {
+        let d = random(this.neighbourList.slice(0, 4));
+        let xn = this.x + d[0];
+        let yn = this.y + d[1];
+        let neighbour = grid[xn][yn];
+        if (this.watered) {
+            if (!neighbour) {
+                // Check if the empty space I want to grow into doesn't have too
+                // many neighbours
+                let count = 0;
+                for (let i = 0; i < this.neighbourList.length; i++) {
+                    let dn = this.neighbourList[i];
+                    let xnn = xn + dn[0];
+                    let ynn = yn + dn[1];
+                    if (grid[xnn][ynn] instanceof PlantParticle) {
+                        if (i < 4) {
+                            count += 1;
+                        }
+                        else {
+                            count += 0.5;
+                        }
+                    }
+                }
+                if (count < 2) {
+                    // If it doesn't, grow into it
+                    new PlantParticle(xn, yn);
+                    this.watered = false;
+                }
+            }
+            else if (neighbour instanceof PlantParticle) {
+                if (!neighbour.watered) {
+                    neighbour.watered = true;
+                    this.watered = false;
+                }
+            }
+
+        }
+        else {
+            // If we're not watered look for water
+            if (neighbour instanceof WaterParticle) {
+                // if the random neighbour is water, delete it and we are now watered
+                grid[xn][yn] = false;
+                particleSet.delete(neighbour);
+                this.watered = true;
+            }
+        }
+    }
+}
+
+
 class MoveableParticle extends Particle {
     // Parent for particles that can move and displace each other.
     constructor(x, y) {
@@ -278,10 +363,10 @@ class WaterParticle extends MoveableParticle {
 }
 
 
-adjustHSBofString = function(colorString, scaleH, scaleS, scaleB) {
-	let c = color(colorString);
+adjustHSBofString = function (colorString, scaleH, scaleS, scaleB) {
+    let c = color(colorString);
     colorMode(HSB);
-	c = color(hue(c)*scaleH, saturation(c)*scaleS, brightness(c)*scaleB);
-	// colorMode(RGB);
-	return c.toString('#rrggbb')
+    c = color(hue(c) * scaleH, saturation(c) * scaleS, brightness(c) * scaleB);
+    // colorMode(RGB);
+    return c.toString('#rrggbb')
 }
