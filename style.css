@@ -32,6 +32,7 @@ canvas {
   justify-content: space-evenly;
 
   align-items: center;
+  max-width: 600px;
 
 }
 
