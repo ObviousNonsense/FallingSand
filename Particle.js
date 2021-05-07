@@ -465,6 +465,21 @@ class SteamParticle extends FluidParticle {
     }
 }
 
+class GasolineParticle extends FluidParticle {
+    static BASE_COLOR = '#6922A2'
+
+    constructor(x, y) {
+        super(x, y);
+        this.weight = 50;
+        this.flammability = 1;
+        this.fuelValue = 5;
+    }
+
+    update() {
+        super.update(true);
+    }
+}
+
 
 adjustHSBofString = function (colorString, scaleH, scaleS, scaleB) {
     let c = color(colorString);

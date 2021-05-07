@@ -25,10 +25,12 @@ const PARTICLE_TYPES = {
 	'Steam': SteamParticle,
 	'Plant': PlantParticle,
 	'Fire': FireParticle,
+	'Gasoline': GasolineParticle,
 	'Sand Source': function (x, y) { return new ParticleSource(x, y, SandParticle) },
 	'Water Source': function (x, y) { return new ParticleSource(x, y, WaterParticle) },
 	'Steam Source': function (x, y) { return new ParticleSource(x, y, SteamParticle) },
 	'Fire Source': function (x, y) { return new ParticleSource(x, y, FireParticle) },
+	'Gasoline Source': function (x, y) { return new ParticleSource(x, y, GasolineParticle) },
 	'Sink': ParticleSink,
 }
 
