@@ -18,17 +18,18 @@ let canvasContext;
 let numParticleDisplay;
 
 const PARTICLE_TYPES = {
+	'Stone Wall': WallParticle,
+	'Wood Wall': WoodParticle,
 	'Sand': SandParticle,
-	'Sand Source': function (x, y) { return new ParticleSource(x, y, SandParticle) },
 	'Water': WaterParticle,
-	'Water Source': function (x, y) { return new ParticleSource(x, y, WaterParticle) },
 	'Steam': SteamParticle,
 	'Plant': PlantParticle,
 	'Fire': FireParticle,
+	'Sand Source': function (x, y) { return new ParticleSource(x, y, SandParticle) },
+	'Water Source': function (x, y) { return new ParticleSource(x, y, WaterParticle) },
+	'Steam Source': function (x, y) { return new ParticleSource(x, y, SteamParticle) },
 	'Fire Source': function (x, y) { return new ParticleSource(x, y, FireParticle) },
-	'Stone Wall': WallParticle,
-	'Wood Wall': WoodParticle,
-	'Sink': ParticleSink
+	'Sink': ParticleSink,
 }
 
 
