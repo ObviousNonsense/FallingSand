@@ -19,14 +19,15 @@ let numParticleDisplay;
 
 const PARTICLE_TYPES = {
 	'Sand': SandParticle,
-	'Sand Source': function(x, y) {return new ParticleSource(x, y, SandParticle)},
+	'Sand Source': function (x, y) { return new ParticleSource(x, y, SandParticle) },
 	'Water': WaterParticle,
-	'Water Source': function(x, y) {return new ParticleSource(x, y, WaterParticle)},
+	'Water Source': function (x, y) { return new ParticleSource(x, y, WaterParticle) },
 	'Steam': SteamParticle,
 	'Plant': PlantParticle,
 	'Fire': FireParticle,
-	'Fire Source': function(x, y) {return new ParticleSource(x, y, FireParticle)},
-	'Wall': WallParticle,
+	'Fire Source': function (x, y) { return new ParticleSource(x, y, FireParticle) },
+	'Stone Wall': WallParticle,
+	'Wood Wall': WoodParticle,
 	'Sink': ParticleSink
 }
 

@@ -10,14 +10,7 @@ class Particle {
 
         this.flammability = 0;
 
-        // this.color = this.constructor.BASE_COLOR;
-
         let c = this.constructor.BASE_COLOR;
-        // this.color = random([
-        //     c,
-        //     adjustHSBofString(c, 1, 0.95, 1.05),
-        //     adjustHSBofString(c, 1, 1.05, 0.95)
-        // ]);
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
     }
 
@@ -48,7 +41,6 @@ class ParticleSink extends Particle {
 
     constructor(x, y) {
         super(x, y);
-        // this.color = '#000000';
         this.indestructible = true;
         this.neighbourList = [
             [0, -1],
@@ -63,8 +55,6 @@ class ParticleSink extends Particle {
         let d = random(this.neighbourList);
         let neighbour = grid[this.x + d[0]][this.y + d[1]];
         if (neighbour && !neighbour.indestructible) {
-            // particleSet.delete(neighbour);
-            // grid[neighbour.x][neighbour.y] = false;
             neighbour.delete();
         }
     }
@@ -77,8 +67,16 @@ class WallParticle extends Particle {
 
     constructor(x, y) {
         super(x, y);
-        // this.color = random(['#626770', '#575D69']);
-        // this.color = color(65, 68, 74);
+    }
+}
+
+class WoodParticle extends Particle {
+    static BASE_COLOR = '#C17736'
+
+    constructor(x, y) {
+        super(x, y);
+        this.flammability = 0.2;
+        this.fuelValue = 20;
     }
 }
 
@@ -92,7 +90,6 @@ class IndestructibleWallParticle extends WallParticle {
     // indesctructible so sinks can't destroy them.
     constructor(x, y) {
         super(x, y);
-        // this.color = '#6C727B';
         this.indestructible = true;
     }
 }
@@ -168,8 +165,6 @@ class FireParticle extends Particle {
             this.fresh = false;
         }
     }
-
-
 }
 
 
@@ -182,7 +177,7 @@ class PlantParticle extends Particle {
         this.color_watered = this.color;
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
-        this.fuelValue = 1;
+        this.fuelValue = 10;
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -199,11 +194,11 @@ class PlantParticle extends Particle {
         this._watered = w;
         if (w) {
             this.color = this.color_watered;
-            this.flammability = 0.4;
+            this.flammability = 0.1;
         }
         else {
             this.color = this.color_dry;
-            this.flammability = 0.9;
+            this.flammability = 0.3;
         }
     }
 
@@ -249,8 +244,6 @@ class PlantParticle extends Particle {
             // If we're not watered look for water
             if (neighbour instanceof WaterParticle) {
                 // if the random neighbour is water, delete it and we are now watered
-                // grid[xn][yn] = false;
-                // particleSet.delete(neighbour);
                 neighbour.delete();
                 this.watered = true;
             }
@@ -428,8 +421,6 @@ class WaterParticle extends FluidParticle {
 
     constructor(x, y) {
         super(x, y);
-        // this.color = color(43, 100, 195);
-        // this.color = random(['#2b64c3', '#2E68CA', '#255FC0']);
         this.weight = 60;
     }
 
