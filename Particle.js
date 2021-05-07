@@ -31,7 +31,7 @@ class Particle {
             pixelsPerParticle);
     }
 
-    update = function () {
+    update() {
         return false;
     }
 }
@@ -53,7 +53,7 @@ class ParticleSink extends Particle {
         ]
     }
 
-    update = function () {
+    update() {
         // Selects a random adjacent space. If there is a particle there, delete it.
         let d = random(this.neighbourList);
         let neighbour = grid[this.x + d[0]][this.y + d[1]];
@@ -105,7 +105,7 @@ class ParticleSource extends Particle {
         ]
     }
 
-    update = function () {
+    update() {
         // Pick a random adjacent space. If it's empty create the given type of
         // particle there.
         let d = random(this.neighbourList);
@@ -122,7 +122,7 @@ class ParticleSource extends Particle {
 class FireParticle extends Particle {
     static BASE_COLOR = '#e65c00'
 
-    constructor(x, y, fuel=0) {
+    constructor(x, y, fuel = 0) {
         super(x, y);
         this.fuel = fuel;
         this.fresh = true;
@@ -134,7 +134,7 @@ class FireParticle extends Particle {
         ]
     }
 
-    update = function () {
+    update() {
         if (!this.fresh) {
             for (let i = 0; i < this.neighbourList.length; i++) {
                 let d = this.neighbourList[i];
@@ -202,7 +202,7 @@ class PlantParticle extends Particle {
         return this._watered;
     }
 
-    update = function () {
+    update() {
         let d = random(this.neighbourList.slice(0, 4));
         let xn = this.x + d[0];
         let yn = this.y + d[1];
@@ -258,21 +258,24 @@ class MoveableParticle extends Particle {
 
     tryGridPosition = function (x, y, trySwap = true) {
         // TODO: Rewrite this to work in any direction, accounting for weight
+        // TODO: Maybe add a property that says a particle has already been
+        // moved this frame and can't move again
 
         let p = grid[x][y];
         // Move to the given position if it's empty.
         if (!p) {
-            this.moveToGridPosition(x, y);
-            return true;
+            if (this.weight * random() > Math.sign(this.weight)) {
+                this.moveToGridPosition(x, y);
+                return true;
+            }
         }
         // If there's something there maybe displace it as long as it's not the
         // thing that's trying to displace us and it's moveable and we're
-        // heavier than it with some randomness involved (this is currently only
-        // being called when trying to move downward)
+        // heavier than it with some randomness involved
         else if (
             trySwap
             && p instanceof MoveableParticle
-            && y > this.y
+            // && y > this.y
             && random() > p.weight / this.weight
         ) {
             this.displaceParticle(p);
@@ -336,7 +339,7 @@ class SandParticle extends MoveableParticle {
         super(x, y);
         // this.color = random(['#e5b55f', '#D29D3F', '#E9BB69']);
         // this.color = color(229, 181, 95);
-        this.weight = 2;
+        this.weight = 90;
         this.updateList = [
             [+0, +1],
             [-1, +1],
@@ -350,7 +353,7 @@ class SandParticle extends MoveableParticle {
         }
     }
 
-    update = function () {
+    update() {
         let moved = false;
         let i = 0;
 
@@ -367,30 +370,29 @@ class SandParticle extends MoveableParticle {
 }
 
 
-class WaterParticle extends MoveableParticle {
-
-    static BASE_COLOR = '#2b64c3';
+class FluidParticle extends MoveableParticle {
 
     constructor(x, y) {
         super(x, y);
-        // this.color = color(43, 100, 195);
-        // this.color = random(['#2b64c3', '#2E68CA', '#255FC0']);
-        this.weight = 1;
         this.updateList = [
             [+0, +1],
             [-1, +1],
             [+1, +1],
             [-1, +0],
             [+1, +0]
-        ]
+        ];
     }
 
-    update = function () {
+    update(trySwap) {
         let moved = false;
 
         for (let i = 0; i < this.updateList.length; i++) {
             let u = this.updateList[i];
-            moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
+            moved = this.tryGridPosition(
+                this.x + Math.sign(this.weight) * u[0],
+                this.y + Math.sign(this.weight) * u[1],
+                trySwap
+            );
 
             // HACK If we moved with the last direction in the update list (left
             // or right), then swap that with the previous one (right or left,
@@ -406,6 +408,38 @@ class WaterParticle extends MoveableParticle {
             }
         }
         return moved;
+    }
+}
+
+
+class WaterParticle extends FluidParticle {
+
+    static BASE_COLOR = '#2b64c3';
+
+    constructor(x, y) {
+        super(x, y);
+        // this.color = color(43, 100, 195);
+        // this.color = random(['#2b64c3', '#2E68CA', '#255FC0']);
+        this.weight = 60;
+    }
+
+    update() {
+        super.update(true);
+    }
+
+}
+
+
+class SteamParticle extends FluidParticle {
+    static BASE_COLOR = '#e6f7ff'
+
+    constructor(x, y) {
+        super(x, y);
+        this.weight = -3;
+    }
+
+    update() {
+        super.update(false);
     }
 }
 
