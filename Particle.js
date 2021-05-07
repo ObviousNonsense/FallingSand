@@ -21,7 +21,7 @@ class Particle {
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
     }
 
-    show = function () {
+    show() {
         // Using native javascript for drawing on the canvas is faster than
         // using p5's methods
         canvasContext.fillStyle = this.color;
@@ -33,6 +33,11 @@ class Particle {
 
     update() {
         return false;
+    }
+
+    delete() {
+        particleSet.delete(this);
+        grid[this.x][this.y] = false;
     }
 }
 
@@ -58,8 +63,9 @@ class ParticleSink extends Particle {
         let d = random(this.neighbourList);
         let neighbour = grid[this.x + d[0]][this.y + d[1]];
         if (neighbour && !neighbour.indestructible) {
-            particleSet.delete(neighbour);
-            grid[neighbour.x][neighbour.y] = false;
+            // particleSet.delete(neighbour);
+            // grid[neighbour.x][neighbour.y] = false;
+            neighbour.delete();
         }
     }
 }
@@ -147,12 +153,15 @@ class FireParticle extends Particle {
                         particleSet.delete(neighbour);
                     }
                 }
+                else if (neighbour instanceof WaterParticle) {
+                    neighbour.evaporate();
+                    this.fuel--;
+                }
             }
 
             this.fuel--;
             if (this.fuel < 0) {
-                grid[this.x][this.y] = false;
-                particleSet.delete(this);
+                this.delete();
             }
         }
         else {
@@ -240,8 +249,9 @@ class PlantParticle extends Particle {
             // If we're not watered look for water
             if (neighbour instanceof WaterParticle) {
                 // if the random neighbour is water, delete it and we are now watered
-                grid[xn][yn] = false;
-                particleSet.delete(neighbour);
+                // grid[xn][yn] = false;
+                // particleSet.delete(neighbour);
+                neighbour.delete();
                 this.watered = true;
             }
         }
@@ -427,6 +437,10 @@ class WaterParticle extends FluidParticle {
         super.update(true);
     }
 
+    evaporate() {
+        particleSet.delete(this);
+        new SteamParticle(this.x, this.y);
+    }
 }
 
 
@@ -443,9 +457,8 @@ class SteamParticle extends FluidParticle {
     update() {
         let lastY = this.y;
         super.update(false);
-        if (this.condensationCountdown <= 0){
-            particleSet.delete(this);
-            new WaterParticle(this.x, this.y);
+        if (this.condensationCountdown <= 0) {
+            this.condensate();
         }
         else {
             // this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN;
@@ -453,6 +466,11 @@ class SteamParticle extends FluidParticle {
         if (this.y === lastY) {
             this.condensationCountdown--;
         }
+    }
+
+    condensate() {
+        particleSet.delete(this);
+        new WaterParticle(this.x, this.y);
     }
 }
 
