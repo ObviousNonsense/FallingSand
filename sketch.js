@@ -23,6 +23,8 @@ const PARTICLE_TYPES = {
 	'Water': WaterParticle,
 	'Water Source': function(x, y) {return new ParticleSource(x, y, WaterParticle)},
 	'Plant': PlantParticle,
+	'Fire': FireParticle,
+	'Fire Source': function(x, y) {return new ParticleSource(x, y, FireParticle)},
 	'Wall': WallParticle,
 	'Sink': ParticleSink
 }

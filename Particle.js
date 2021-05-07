@@ -8,6 +8,8 @@ class Particle {
         grid[x][y] = this;
         particleSet.add(this);
 
+        this.flammability = 0;
+
         // this.color = this.constructor.BASE_COLOR;
 
         let c = this.constructor.BASE_COLOR;
@@ -117,6 +119,51 @@ class ParticleSource extends Particle {
 }
 
 
+class FireParticle extends Particle {
+    static BASE_COLOR = '#e65c00'
+
+    constructor(x, y, fuel=0) {
+        super(x, y);
+        this.fuel = fuel;
+        this.fresh = true;
+        this.neighbourList = [
+            [0, -1],
+            [0, +1],
+            [+1, 0],
+            [-1, 0],
+        ]
+    }
+
+    update = function () {
+        if (!this.fresh) {
+            for (let i = 0; i < this.neighbourList.length; i++) {
+                let d = this.neighbourList[i];
+                let xn = this.x + d[0];
+                let yn = this.y + d[1];
+                let neighbour = grid[xn][yn];
+                if (neighbour.flammability > 0) {
+                    if (neighbour.flammability > random()) {
+                        new FireParticle(xn, yn, neighbour.fuelValue);
+                        particleSet.delete(neighbour);
+                    }
+                }
+            }
+
+            this.fuel--;
+            if (this.fuel < 0) {
+                grid[this.x][this.y] = false;
+                particleSet.delete(this);
+            }
+        }
+        else {
+            this.fresh = false;
+        }
+    }
+
+
+}
+
+
 class PlantParticle extends Particle {
 
     static BASE_COLOR = '#338A1B';
@@ -126,6 +173,7 @@ class PlantParticle extends Particle {
         this.color_watered = this.color;
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
+        this.fuelValue = 1;
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -142,9 +190,11 @@ class PlantParticle extends Particle {
         this._watered = w;
         if (w) {
             this.color = this.color_watered;
+            this.flammability = 0.4;
         }
         else {
             this.color = this.color_dry;
+            this.flammability = 0.9;
         }
     }
 
