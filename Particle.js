@@ -431,15 +431,28 @@ class WaterParticle extends FluidParticle {
 
 
 class SteamParticle extends FluidParticle {
-    static BASE_COLOR = '#e6f7ff'
+    static BASE_COLOR = '#c0d2f2'
+    static BASE_CONDENSATION_COUNTDOWN = 120;
 
     constructor(x, y) {
         super(x, y);
         this.weight = -3;
+        this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN + random(-10, 10);
     }
 
     update() {
+        let lastY = this.y;
         super.update(false);
+        if (this.condensationCountdown <= 0){
+            particleSet.delete(this);
+            new WaterParticle(this.x, this.y);
+        }
+        else {
+            // this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN;
+        }
+        if (this.y === lastY) {
+            this.condensationCountdown--;
+        }
     }
 }
 
