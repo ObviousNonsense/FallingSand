@@ -6,6 +6,10 @@ html, body {
   color: beige;
 }
 
+a:link{
+  color:antiquewhite;
+}
+
 body {
   margin: auto;
   display: flex;
@@ -13,7 +17,6 @@ body {
 
   justify-content: space-evenly;
 
-  /* This centers our sketch vertically. */
   align-items: center;
 }
 
@@ -28,7 +31,6 @@ canvas {
 
   justify-content: space-evenly;
 
-  /* This centers our sketch vertically. */
   align-items: center;
 
 }

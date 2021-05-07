@@ -31,7 +31,7 @@ const PARTICLE_TYPES = {
 	'Steam Source': function (x, y) { return new ParticleSource(x, y, SteamParticle) },
 	'Fire Source': function (x, y) { return new ParticleSource(x, y, FireParticle) },
 	'Gasoline Source': function (x, y) { return new ParticleSource(x, y, GasolineParticle) },
-	'Sink': ParticleSink,
+	'Particle Sink': ParticleSink,
 }
 
 
