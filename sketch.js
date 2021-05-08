@@ -174,7 +174,6 @@ handleMouseClick = function () {
 						else if (action != 'Delete') {
 							world.addParticle(new PARTICLE_TYPES[action](ix, iy));
 						}
-
 					}
 				}
 			}
