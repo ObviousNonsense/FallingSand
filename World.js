@@ -3,10 +3,11 @@ class World {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.particleSet = new Set();
-        this.grid = [];
+        this.initializeEmptyGrid();
     }
 
     initializeEmptyGrid() {
+        this.grid = [];
         for (let x = 0; x < this.gridWidth; x++) {
             this.grid[x] = [];
             for (let y = 0; y < this.gridHeight; y++) {

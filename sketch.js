@@ -1,5 +1,5 @@
 let pixelsPerParticle = 4;
-let world = new World(100, 100);
+let world;
 
 let canvasContext;
 let numParticleDisplay;
@@ -10,6 +10,7 @@ let frDisplay;
 let frSlider;
 let pauseButton;
 let paused = false;
+let resetButton;
 
 let radio;
 let brushSizeSlider;
@@ -36,6 +37,8 @@ const PARTICLE_TYPES = {
 
 
 function setup() {
+
+	world = new World(100, 100)
 
 	// ******************** SETUP UI ********************
 
@@ -85,6 +88,10 @@ function setup() {
 	pauseButton.parent('gui-div');
 	pauseButton.mouseClicked(pauseSim);
 
+	resetButton = createButton('Reset');
+	resetButton.parent('gui-div');
+	resetButton.mouseClicked(resetWorld);
+
 	frSlider = createSlider(1, 60, 60, 1);
 	frSlider.parent('gui-div');
 
@@ -97,7 +104,7 @@ function setup() {
 
 
 	// ******************** SETUP WORLD ********************
-	world.initializeEmptyGrid();
+	// world.initializeEmptyGrid();
 
 	// noStroke();
 }
@@ -143,6 +150,12 @@ averageFrameRate = function () {
 
 pauseSim = function () {
 	paused = !paused;
+}
+
+resetWorld = function () {
+	let w = world.gridWidth;
+	let h = world.gridHeight;
+	world = new World(w, h);
 }
 
 
