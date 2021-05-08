@@ -4,6 +4,7 @@ html, body {
   padding: 10; */
   background-color: #131622;
   color: beige;
+  font-size:small;
 }
 
 a:link{
@@ -29,7 +30,7 @@ canvas {
   display: flex;
   flex-direction: column;
 
-  justify-content: space-evenly;
+  justify-content: center;
 
   align-items: center;
   max-width: 600px;
@@ -49,9 +50,9 @@ input[type=radio] {
 }
 
 label {
-  display:inline-flex;
+  display: inline-flex;
   cursor: pointer;
-  padding: 5px 20px;
+  padding: 5px 10px;
 }
 
 input[type=radio]:checked + label{
@@ -60,10 +61,12 @@ input[type=radio]:checked + label{
 
 input[type=radio] + label {
   border-left: solid var(--button-border-width) var(--button-checked-color);
+  border-bottom: solid var(--button-border-width) var(--button-checked-color);
+  border-top: solid var(--button-border-width) var(--button-checked-color);
 }
 .radio-group {
   border: solid var(--button-border-width) var(--button-checked-color);
   display: inline-block;
-  margin: 20px;
+  margin: 5px;
   overflow: hidden;
 }
