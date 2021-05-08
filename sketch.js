@@ -1,21 +1,21 @@
 let pixelsPerParticle = 4;
-let grid = [];
-let particleSet = new Set();
-let gridWidth = 100;
-let gridHeight = 100;
+let world = new World(100, 100);
+
+let canvasContext;
+let numParticleDisplay;
+
 let frHistory = [];
 let frHistoryIndex = 0;
 let frDisplay;
-let radio;
-let pauseButton;
 let frSlider;
+let pauseButton;
 let paused = false;
+
+let radio;
 let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
-let canvas;
-let canvasContext;
-let numParticleDisplay;
+
 
 const PARTICLE_TYPES = {
 	'Stone Wall': WallParticle,
@@ -40,8 +40,8 @@ function setup() {
 	// ******************** SETUP UI ********************
 
 	// Create p5 Canvas
-	let p5canvas = createCanvas(pixelsPerParticle * gridWidth,
-		pixelsPerParticle * gridHeight);
+	let p5canvas = createCanvas(pixelsPerParticle * world.gridWidth,
+		pixelsPerParticle * world.gridHeight);
 	// pixelDensity(1);
 
 	// Add the canvas to the page
@@ -49,7 +49,7 @@ function setup() {
 
 	// Initialize native JS/HTML5 canvas object, since writing basic rectangles
 	// to it is faster than using p5
-	canvas = document.getElementById('defaultCanvas0');
+	let canvas = document.getElementById('defaultCanvas0');
 	canvasContext = canvas.getContext('2d');
 
 	// Radio buttons for selecting particle type to draw
@@ -76,7 +76,7 @@ function setup() {
 	brushSizeDisplay = createDiv('');
 	brushSizeDisplay.parent('gui-div');
 
-	brushSizeSlider = createSlider(1, min(16, min(gridWidth, gridHeight)), 2, 1);
+	brushSizeSlider = createSlider(1, min(16, min(world.gridWidth, world.gridHeight)), 2, 1);
 	brushSizeSlider.parent('gui-div');
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
 	brushReplaceCheckbox.parent('gui-div');
@@ -97,51 +97,31 @@ function setup() {
 
 
 	// ******************** SETUP WORLD ********************
-	for (let x = 0; x < gridWidth; x++) {
-		grid[x] = [];
-		for (let y = 0; y < gridHeight; y++) {
-
-			// Initialize most grid positions to false
-			grid[x][y] = false;
-
-			// Initialize boundaries to indestructible walls so I don't ever
-			// have to check if we're looking outside the array bounds
-			if (y === 0 || y === gridHeight - 1 || x === 0 || x === gridWidth - 1) {
-				new IndestructibleWallParticle(x, y);
-			}
-		}
-	}
-
+	world.initializeEmptyGrid();
 
 	// noStroke();
 }
 
 function draw() {
 	frameRate(frSlider.value())
-	// canvasContext.fillStyle = '#000000'
-	// canvasContext.rect(0, 0, width, height);
 
 	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 
 	handleMouseClick();
-	for (let p of particleSet) {
-		if (!paused) {
-			p.update();
-		}
+	if (!paused) {
+		world.updateAllParticles();
 	}
 
 	canvasContext.save()
 	background('#333333');
 
 	// Separate loop for showing because sometimes particles will be moved by others after they update
-	for (let p of particleSet) {
-		p.show();
-	}
+	world.showAllParticles();
 
 	canvasContext.restore();
 
 	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
-	numParticleDisplay.html('Number of Particles: ' + particleSet.size);
+	numParticleDisplay.html('Number of Particles: ' + world.particleSet.size);
 	// noLoop();
 }
 
@@ -171,7 +151,7 @@ handleMouseClick = function () {
 		let x = floor(mouseX / pixelsPerParticle);
 		let y = floor(mouseY / pixelsPerParticle);
 
-		if (x <= gridWidth - 2 && x >= 1 && y <= gridHeight - 2 && y >= 1) {
+		if (x <= world.gridWidth - 2 && x >= 1 && y <= world.gridHeight - 2 && y >= 1) {
 
 			let brushSize = brushSizeSlider.value();
 			let imin = floor(-0.5 * (brushSize - 1));
@@ -180,32 +160,24 @@ handleMouseClick = function () {
 				let ix = x + i;
 				for (j = imin; j < imin + brushSize; j++) {
 					let iy = y + j;
-					if (ix <= gridWidth - 2 && ix >= 1 && iy <= gridHeight - 2 && iy >= 1) {
-						let p = grid[ix][iy];
+					if (ix <= world.gridWidth - 2 && ix >= 1 && iy <= world.gridHeight - 2 && iy >= 1) {
+						let p = world.grid[ix][iy];
 						let action = radio.value();
 						if (p) {
-							if (brushReplaceCheckbox.checked() || action === 'Delete') {
-								particleSet.delete(p);
-								performSelectedAction(action, ix, iy);
+							if (action === 'Delete') {
+								world.deleteParticle(p);
+							}
+							else if (brushReplaceCheckbox.checked()) {
+								world.replaceParticle(p, new PARTICLE_TYPES[action](ix, iy));
 							}
 						}
-						else {
-							performSelectedAction(action, ix, iy);
+						else if (action != 'Delete') {
+							world.addParticle(new PARTICLE_TYPES[action](ix, iy));
 						}
 
 					}
 				}
 			}
 		}
-	}
-}
-
-
-performSelectedAction = function (action, x, y) {
-	if (action === 'Delete') {
-		grid[x][y] = false;
-	}
-	else {
-		new PARTICLE_TYPES[action](x, y);
 	}
 }

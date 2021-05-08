@@ -5,11 +5,7 @@ class Particle {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        grid[x][y] = this;
-        particleSet.add(this);
-
         this.flammability = 0;
-
         let c = this.constructor.BASE_COLOR;
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
     }
@@ -29,8 +25,7 @@ class Particle {
     }
 
     delete() {
-        particleSet.delete(this);
-        grid[this.x][this.y] = false;
+        world.deleteParticle(this);
     }
 }
 
@@ -53,7 +48,7 @@ class ParticleSink extends Particle {
     update() {
         // Selects a random adjacent space. If there is a particle there, delete it.
         let d = random(this.neighbourList);
-        let neighbour = grid[this.x + d[0]][this.y + d[1]];
+        let neighbour = world.grid[this.x + d[0]][this.y + d[1]];
         if (neighbour && !neighbour.indestructible) {
             neighbour.delete();
         }
@@ -114,9 +109,9 @@ class ParticleSource extends Particle {
         let d = random(this.neighbourList);
         let xn = this.x + d[0];
         let yn = this.y + d[1];
-        let neighbour = grid[xn][yn];
+        let neighbour = world.grid[xn][yn];
         if (!neighbour) {
-            new this.particleType(xn, yn);
+            world.addParticle(new this.particleType(xn, yn));
         }
     }
 }
@@ -143,11 +138,11 @@ class FireParticle extends Particle {
                 let d = this.neighbourList[i];
                 let xn = this.x + d[0];
                 let yn = this.y + d[1];
-                let neighbour = grid[xn][yn];
+                let neighbour = world.grid[xn][yn];
                 if (neighbour.flammability > 0) {
                     if (neighbour.flammability > random()) {
-                        new FireParticle(xn, yn, neighbour.fuelValue);
-                        particleSet.delete(neighbour);
+                        world.replaceParticle(neighbour,
+                            new FireParticle(xn, yn, neighbour.fuelValue));
                     }
                 }
                 else if (neighbour instanceof WaterParticle) {
@@ -210,7 +205,7 @@ class PlantParticle extends Particle {
         let d = random(this.neighbourList.slice(0, 4));
         let xn = this.x + d[0];
         let yn = this.y + d[1];
-        let neighbour = grid[xn][yn];
+        let neighbour = world.grid[xn][yn];
         if (this.watered) {
             if (!neighbour) {
                 // Check if the empty space I want to grow into doesn't have too
@@ -220,14 +215,14 @@ class PlantParticle extends Particle {
                     let dn = this.neighbourList[i];
                     let xnn = xn + dn[0];
                     let ynn = yn + dn[1];
-                    if (grid[xnn][ynn] instanceof PlantParticle) {
+                    if (world.grid[xnn][ynn] instanceof PlantParticle) {
                         count++;
                     }
                 }
                 if (count < 3) {
                     // If it doesn't, grow into it
                     if (random() > 0.5) {
-                        new PlantParticle(xn, yn);
+                        world.addParticle(new PlantParticle(xn, yn));
                         this.watered = false;
                     }
                 }
@@ -264,7 +259,7 @@ class MoveableParticle extends Particle {
         // TODO: Maybe add a property that says a particle has already been
         // moved this frame and can't move again
 
-        let p = grid[x][y];
+        let p = world.grid[x][y];
         // Move to the given position if it's empty.
         if (!p) {
             if (this.weight * random() > Math.sign(this.weight)) {
@@ -289,10 +284,10 @@ class MoveableParticle extends Particle {
     }
 
     moveToGridPosition = function (x, y) {
-        grid[this.x][this.y] = false;
+        world.grid[this.x][this.y] = false;
         this.x = x;
         this.y = y;
-        grid[x][y] = this;
+        world.grid[x][y] = this;
     }
 
     displaceParticle = function (otherParticle) {
@@ -328,7 +323,7 @@ class MoveableParticle extends Particle {
         otherParticle.moveToGridPosition(this.x, this.y);
         this.x = tempX;
         this.y = tempY;
-        grid[tempX][tempY] = this;
+        world.grid[tempX][tempY] = this;
 
     }
 }
@@ -340,8 +335,6 @@ class SandParticle extends MoveableParticle {
 
     constructor(x, y) {
         super(x, y);
-        // this.color = random(['#e5b55f', '#D29D3F', '#E9BB69']);
-        // this.color = color(229, 181, 95);
         this.weight = 90;
         this.updateList = [
             [+0, +1],
@@ -361,7 +354,6 @@ class SandParticle extends MoveableParticle {
         let i = 0;
 
         for (let i = 0; i < this.updateList.length; i++) {
-            // while (!moved) {
             let u = this.updateList[i];
             moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
             if (moved) {
@@ -429,8 +421,7 @@ class WaterParticle extends FluidParticle {
     }
 
     evaporate() {
-        particleSet.delete(this);
-        new SteamParticle(this.x, this.y);
+        world.replaceParticle(this, new SteamParticle(this.x, this.y));
     }
 }
 
@@ -448,20 +439,18 @@ class SteamParticle extends FluidParticle {
     update() {
         let lastY = this.y;
         super.update(false);
+
         if (this.condensationCountdown <= 0) {
             this.condensate();
         }
-        else {
-            // this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN;
-        }
+
         if (this.y === lastY) {
             this.condensationCountdown--;
         }
     }
 
     condensate() {
-        particleSet.delete(this);
-        new WaterParticle(this.x, this.y);
+        world.replaceParticle(this, new WaterParticle(this.x, this.y))
     }
 }
 
