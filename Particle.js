@@ -75,7 +75,7 @@ class WoodParticle extends Particle {
     constructor(x, y, world) {
         super(x, y, world);
         this.flammability = 0.2;
-        this.fuelValue = 20;
+        this.fuelValue = 60;
     }
 }
 
@@ -144,9 +144,21 @@ class FireParticle extends Particle {
                 let yn = this.y + d[1];
                 let neighbour = this.world.grid[xn][yn];
                 if (neighbour.flammability > 0) {
-                    if (neighbour.flammability > random()) {
+                    // if (neighbour.flammability > random()) {
+                    if (neighbour.flammability*(1 - 0.5*d[1]) > random()) {
                         this.world.replaceParticle(neighbour,
                             new FireParticle(xn, yn, this.world, neighbour.fuelValue));
+                    }
+                }
+                else if(!neighbour && this.fuel > 0) {
+                    if (d[1] < 1
+                        && this.world.grid[this.x - 1][this.y] instanceof FireParticle
+                        && this.world.grid[this.x + 1][this.y] instanceof FireParticle
+                    ) {
+                        this.world.addParticle(
+                            new FlameParticle(xn, yn, this.world,
+                                random([...Array(this.fuel).keys()]))
+                        );
                     }
                 }
                 else if (neighbour instanceof WaterParticle) {
@@ -166,6 +178,19 @@ class FireParticle extends Particle {
     }
 }
 
+class FlameParticle extends FireParticle {
+    static BASE_COLOR = '#ff7700'
+    constructor(x, y, world, fuel = 0) {
+        super(x, y, world, fuel);
+    }
+
+    update() {
+        this.color = adjustHSBofString(this.constructor.BASE_COLOR,
+            random(0.9, 1.1), random(0.95, 1.05), random(0.95, 1.05));
+        super.update();
+    }
+}
+
 
 class PlantParticle extends Particle {
 
@@ -176,7 +201,7 @@ class PlantParticle extends Particle {
         this.color_watered = this.color;
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
-        this.fuelValue = 10;
+        this.fuelValue = 20;
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -193,11 +218,11 @@ class PlantParticle extends Particle {
         this._watered = w;
         if (w) {
             this.color = this.color_watered;
-            this.flammability = 0.1;
+            this.flammability = 0.05;
         }
         else {
             this.color = this.color_dry;
-            this.flammability = 0.3;
+            this.flammability = 0.15;
         }
     }
 
@@ -491,14 +516,15 @@ class SteamParticle extends FluidParticle {
     }
 }
 
+
 class PropaneParticle extends FluidParticle {
     static BASE_COLOR = '#9379a8';
 
     constructor(x, y, world) {
         super(x, y, world);
-        this.weight = 0.7;
+        this.weight = 0.9;
         this.flammability = 1;
-        this.fuelValue = 5;
+        this.fuelValue = 6;
     }
 
     update() {
@@ -513,7 +539,7 @@ class GasolineParticle extends FluidParticle {
         super(x, y, world);
         this.weight = 50;
         this.flammability = 1;
-        this.fuelValue = 5;
+        this.fuelValue = 10;
     }
 
     update() {
