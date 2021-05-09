@@ -4,7 +4,7 @@ html, body {
   padding: 10; */
   background-color: #131622;
   color: beige;
-  font-size:small;
+  font-size:14px;
 }
 
 a:link{
@@ -16,7 +16,7 @@ body {
   display: flex;
   flex-direction: column;
 
-  justify-content: space-evenly;
+  justify-items: space-evenly;
 
   align-items: center;
 }
@@ -34,7 +34,19 @@ canvas {
 
   align-items: center;
   max-width: 600px;
+}
 
+.button-row {
+  margin: auto;
+  display: inline-flex;
+  flex-direction: row;
+
+  align-items: space-around;
+}
+
+.button-row * {
+  padding: 10px;
+  margin: auto;
 }
 
 :root {

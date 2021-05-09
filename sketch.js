@@ -11,6 +11,8 @@ let frSlider;
 let pauseButton;
 let paused = false;
 let resetButton;
+let scaleSlider;
+let scaleLabel;
 
 let radio;
 let brushSizeSlider;
@@ -76,28 +78,53 @@ function setup() {
 	radio.selected('Sand');
 
 	// Other Various UI elements:
-	brushSizeDisplay = createDiv('');
-	brushSizeDisplay.parent('gui-div');
+	let brushDiv = createDiv();
+	brushDiv.parent('gui-div');
+	brushDiv.class('button-row');
+
+	brushSizeDisplay = createP('');
+	brushSizeDisplay.parent(brushDiv);
 
 	brushSizeSlider = createSlider(1, min(16, min(world.gridWidth, world.gridHeight)), 2, 1);
-	brushSizeSlider.parent('gui-div');
+	brushSizeSlider.parent(brushDiv);
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
-	brushReplaceCheckbox.parent('gui-div');
+	brushReplaceCheckbox.parent(brushDiv);
+
+	let simDiv = createDiv();
+	simDiv.parent('gui-div');
+	simDiv.class('button-row');
 
 	pauseButton = createButton('Pause');
-	pauseButton.parent('gui-div');
+	pauseButton.parent(simDiv);
 	pauseButton.mouseClicked(pauseSim);
 
 	resetButton = createButton('Reset');
-	resetButton.parent('gui-div');
+	resetButton.parent(simDiv);
 	resetButton.mouseClicked(resetWorld);
 
 	frSlider = createSlider(1, 60, 60, 1);
-	frSlider.parent('gui-div');
+	frSlider.parent(simDiv);
 
 	frDisplay = createP('');
-	frDisplay.parent('gui-div');
+	frDisplay.parent(simDiv);
 	frHistory = new Array(60);
+
+	let scaleDiv = createDiv();
+	scaleDiv.parent('gui-div');
+	scaleDiv.class('button-row');
+
+	scaleLabel = createP('Scale: ');
+	scaleLabel.parent(scaleDiv);
+
+	scaleSlider = createSlider(1, 16, 4, 1);
+	scaleSlider.parent(scaleDiv);
+	scaleSlider.changed(function() {
+		pixelsPerParticle = scaleSlider.value();
+		resizeCanvas(world.gridWidth * pixelsPerParticle,
+			world.gridHeight * pixelsPerParticle);
+		let canvas = document.getElementById('defaultCanvas0');
+		canvasContext = canvas.getContext('2d');
+	})
 
 	numParticleDisplay = createP('');
 	numParticleDisplay.parent('gui-div');
