@@ -163,7 +163,8 @@ class FireParticle extends Particle {
                 }
                 else if (neighbour instanceof WaterParticle) {
                     neighbour.evaporate();
-                    this.fuel--;
+                    this.fuel = 0;
+                    break;
                 }
             }
 
@@ -528,12 +529,12 @@ class SteamParticle extends FluidParticle {
 }
 
 
-class PropaneParticle extends FluidParticle {
+class HydrogenParticle extends FluidParticle {
     static BASE_COLOR = '#9379a8';
 
     constructor(x, y, world) {
         super(x, y, world);
-        this.weight = 0.6;
+        this.weight = 0.2;
         this.flammability = 0.95;
         this.fuelValue = 6;
     }
