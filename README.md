@@ -14,6 +14,7 @@ Just a basic falling sand simulator I'm making for fun to practise p5/processing
 - Fire: Burns things.
 - Gasoline: Like water, but a little lighter and burns.
 - Propane: Like Gasoline, but a gas. Heavier than steam.
+- Gunpowder: Basically flammable sand.
 
 ## To Do:
 - Add button to reset sim
@@ -38,6 +39,7 @@ Particle
 ├ PlantParticle
 ├ Moveable Particle
   ├ SandParticle
+    ├ GunpowderParticle
   ├ FluidParticle
     ├ WaterParticle
     ├ SteamParticle

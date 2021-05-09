@@ -421,6 +421,17 @@ class SandParticle extends MoveableParticle {
 }
 
 
+class GunpowderParticle extends SandParticle {
+    static BASE_COLOR = '#222222'
+
+    constructor(x, y, world) {
+        super(x, y, world);
+        this.flammability = 0.7;
+        this.fuelValue = 25;
+    }
+}
+
+
 class FluidParticle extends MoveableParticle {
 
     constructor(x, y, world) {
@@ -522,8 +533,8 @@ class PropaneParticle extends FluidParticle {
 
     constructor(x, y, world) {
         super(x, y, world);
-        this.weight = 0.9;
-        this.flammability = 1;
+        this.weight = 0.6;
+        this.flammability = 0.95;
         this.fuelValue = 6;
     }
 
@@ -538,7 +549,7 @@ class GasolineParticle extends FluidParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.weight = 50;
-        this.flammability = 1;
+        this.flammability = 0.95;
         this.fuelValue = 10;
     }
 
