@@ -31,20 +31,38 @@ class World {
         }
     }
 
+    /**
+    * @param {Particle} p
+    */
     addParticle(p) {
         this.grid[p.x][p.y] = p;
         this.particleSet.add(p);
     }
 
+    /**
+    * @param {Particle} p
+    */
     deleteParticle(p) {
         this.grid[p.x][p.y] = false;
         this.particleSet.delete(p);
     }
 
+    /**
+    * @param {Particle} oldP
+    * @param {Particle} newP
+    */
     replaceParticle(oldP, newP) {
         this.grid[oldP.x][oldP.y] = newP;
         this.particleSet.delete(oldP);
         this.particleSet.add(newP);
+    }
+
+    /**
+    * @param {Particle} p
+    */
+    moveParticleInGrid(p, newX, newY) {
+        this.grid[p.x][p.y] = false;
+        this.grid[newX][newY] = p;
     }
 
     updateAllParticles() {

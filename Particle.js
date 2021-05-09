@@ -2,6 +2,9 @@ class Particle {
 
     static BASE_COLOR = '#FFFFFF';
 
+    /**
+    * @param {World} world
+    */
     constructor(x, y, world) {
         this.x = x;
         this.y = y;
@@ -255,7 +258,7 @@ class MoveableParticle extends Particle {
         this.weight = Infinity;
     }
 
-    tryGridPosition = function (x, y, trySwap = true) {
+    tryGridPosition(x, y, trySwap = true) {
         // TODO: Rewrite this to work in any direction, accounting for weight
         // TODO: Maybe add a property that says a particle has already been
         // moved this frame and can't move again
@@ -284,14 +287,13 @@ class MoveableParticle extends Particle {
         return false;
     }
 
-    moveToGridPosition = function (x, y) {
-        this.world.grid[this.x][this.y] = false;
+    moveToGridPosition(x, y) {
+        this.world.moveParticleInGrid(this, x, y);
         this.x = x;
         this.y = y;
-        this.world.grid[x][y] = this;
     }
 
-    displaceParticle = function (otherParticle) {
+    displaceParticle(otherParticle) {
         // Move another particle so we can take its spot
         let tempX = otherParticle.x;
         let tempY = otherParticle.y;
