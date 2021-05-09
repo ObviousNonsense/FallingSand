@@ -29,11 +29,11 @@ const PARTICLE_TYPES = {
 	'Plant': PlantParticle,
 	'Fire': FireParticle,
 	'Gasoline': GasolineParticle,
-	'Sand Source': function (x, y) { return new ParticleSource(x, y, SandParticle) },
-	'Water Source': function (x, y) { return new ParticleSource(x, y, WaterParticle) },
-	'Steam Source': function (x, y) { return new ParticleSource(x, y, SteamParticle) },
-	'Fire Source': function (x, y) { return new ParticleSource(x, y, FireParticle) },
-	'Gasoline Source': function (x, y) { return new ParticleSource(x, y, GasolineParticle) },
+	'Sand Source': function (x, y) { return new ParticleSource(x, y, world, SandParticle) },
+	'Water Source': function (x, y) { return new ParticleSource(x, y, world, WaterParticle) },
+	'Steam Source': function (x, y) { return new ParticleSource(x, y, world, SteamParticle) },
+	'Fire Source': function (x, y) { return new ParticleSource(x, y, world, FireParticle) },
+	'Gasoline Source': function (x, y) { return new ParticleSource(x, y, world, GasolineParticle) },
 	'Particle Sink': ParticleSink,
 }
 
@@ -150,7 +150,7 @@ function draw() {
 	background('#333333');
 
 	// Separate loop for showing because sometimes particles will be moved by others after they update
-	world.showAllParticles();
+	world.showAllParticles(canvasContext, pixelsPerParticle);
 
 	canvasContext.restore();
 
@@ -182,7 +182,7 @@ pauseSim = function () {
 resetWorld = function () {
 	let w = world.gridWidth;
 	let h = world.gridHeight;
-	world = new World(w, h);
+	world.reset(w, h);
 }
 
 
@@ -208,11 +208,11 @@ handleMouseClick = function () {
 								world.deleteParticle(p);
 							}
 							else if (brushReplaceCheckbox.checked()) {
-								world.replaceParticle(p, new PARTICLE_TYPES[action](ix, iy));
+								world.replaceParticle(p, new PARTICLE_TYPES[action](ix, iy, world));
 							}
 						}
 						else if (action != 'Delete') {
-							world.addParticle(new PARTICLE_TYPES[action](ix, iy));
+							world.addParticle(new PARTICLE_TYPES[action](ix, iy, world));
 						}
 					}
 				}

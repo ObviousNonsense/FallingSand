@@ -2,19 +2,20 @@ class Particle {
 
     static BASE_COLOR = '#FFFFFF';
 
-    constructor(x, y) {
+    constructor(x, y, world) {
         this.x = x;
         this.y = y;
+        this.world = world;
         this.flammability = 0;
         let c = this.constructor.BASE_COLOR;
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
     }
 
-    show() {
+    show(ctx, pixelsPerParticle) {
         // Using native javascript for drawing on the canvas is faster than
         // using p5's methods
-        canvasContext.fillStyle = this.color;
-        canvasContext.fillRect(this.x * pixelsPerParticle,
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x * pixelsPerParticle,
             this.y * pixelsPerParticle,
             pixelsPerParticle,
             pixelsPerParticle);
@@ -25,7 +26,7 @@ class Particle {
     }
 
     delete() {
-        world.deleteParticle(this);
+        this.world.deleteParticle(this);
     }
 }
 
@@ -34,8 +35,8 @@ class ParticleSink extends Particle {
 
     static BASE_COLOR = '#000000';
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.indestructible = true;
         this.neighbourList = [
             [0, -1],
@@ -48,7 +49,7 @@ class ParticleSink extends Particle {
     update() {
         // Selects a random adjacent space. If there is a particle there, delete it.
         let d = random(this.neighbourList);
-        let neighbour = world.grid[this.x + d[0]][this.y + d[1]];
+        let neighbour = this.world.grid[this.x + d[0]][this.y + d[1]];
         if (neighbour && !neighbour.indestructible) {
             neighbour.delete();
         }
@@ -60,16 +61,16 @@ class WallParticle extends Particle {
 
     static BASE_COLOR = '#626770';
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
     }
 }
 
 class WoodParticle extends Particle {
     static BASE_COLOR = '#C17736'
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.flammability = 0.2;
         this.fuelValue = 20;
     }
@@ -83,8 +84,8 @@ class IndestructibleWallParticle extends WallParticle {
     // These are the particles used to define the border of the world so I don't
     // have to worry about checking the edges of the array. They are
     // indesctructible so sinks can't destroy them.
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.indestructible = true;
     }
 }
@@ -92,8 +93,8 @@ class IndestructibleWallParticle extends WallParticle {
 
 class ParticleSource extends Particle {
 
-    constructor(x, y, sourceType) {
-        super(x, y);
+    constructor(x, y, world, sourceType) {
+        super(x, y, world);
         this.particleType = sourceType;
         this.neighbourList = [
             [0, -1],
@@ -109,9 +110,9 @@ class ParticleSource extends Particle {
         let d = random(this.neighbourList);
         let xn = this.x + d[0];
         let yn = this.y + d[1];
-        let neighbour = world.grid[xn][yn];
+        let neighbour = this.world.grid[xn][yn];
         if (!neighbour) {
-            world.addParticle(new this.particleType(xn, yn));
+            this.world.addParticle(new this.particleType(xn, yn, this.world));
         }
     }
 }
@@ -120,8 +121,8 @@ class ParticleSource extends Particle {
 class FireParticle extends Particle {
     static BASE_COLOR = '#e65c00'
 
-    constructor(x, y, fuel = 0) {
-        super(x, y);
+    constructor(x, y, world, fuel = 0) {
+        super(x, y, world);
         this.fuel = fuel;
         this.fresh = true;
         this.neighbourList = [
@@ -138,11 +139,11 @@ class FireParticle extends Particle {
                 let d = this.neighbourList[i];
                 let xn = this.x + d[0];
                 let yn = this.y + d[1];
-                let neighbour = world.grid[xn][yn];
+                let neighbour = this.world.grid[xn][yn];
                 if (neighbour.flammability > 0) {
                     if (neighbour.flammability > random()) {
-                        world.replaceParticle(neighbour,
-                            new FireParticle(xn, yn, neighbour.fuelValue));
+                        this.world.replaceParticle(neighbour,
+                            new FireParticle(xn, yn, this.world, neighbour.fuelValue));
                     }
                 }
                 else if (neighbour instanceof WaterParticle) {
@@ -167,8 +168,8 @@ class PlantParticle extends Particle {
 
     static BASE_COLOR = '#338A1B';
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.color_watered = this.color;
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
@@ -205,7 +206,7 @@ class PlantParticle extends Particle {
         let d = random(this.neighbourList.slice(0, 4));
         let xn = this.x + d[0];
         let yn = this.y + d[1];
-        let neighbour = world.grid[xn][yn];
+        let neighbour = this.world.grid[xn][yn];
         if (this.watered) {
             if (!neighbour) {
                 // Check if the empty space I want to grow into doesn't have too
@@ -215,14 +216,14 @@ class PlantParticle extends Particle {
                     let dn = this.neighbourList[i];
                     let xnn = xn + dn[0];
                     let ynn = yn + dn[1];
-                    if (world.grid[xnn][ynn] instanceof PlantParticle) {
+                    if (this.world.grid[xnn][ynn] instanceof PlantParticle) {
                         count++;
                     }
                 }
                 if (count < 3) {
                     // If it doesn't, grow into it
                     if (random() > 0.5) {
-                        world.addParticle(new PlantParticle(xn, yn));
+                        this.world.addParticle(new PlantParticle(xn, yn, this.world));
                         this.watered = false;
                     }
                 }
@@ -249,8 +250,8 @@ class PlantParticle extends Particle {
 
 class MoveableParticle extends Particle {
     // Parent for particles that can move and displace each other.
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.weight = Infinity;
     }
 
@@ -259,7 +260,7 @@ class MoveableParticle extends Particle {
         // TODO: Maybe add a property that says a particle has already been
         // moved this frame and can't move again
 
-        let p = world.grid[x][y];
+        let p = this.world.grid[x][y];
         // Move to the given position if it's empty.
         if (!p) {
             if (this.weight * random() > Math.sign(this.weight)) {
@@ -284,10 +285,10 @@ class MoveableParticle extends Particle {
     }
 
     moveToGridPosition = function (x, y) {
-        world.grid[this.x][this.y] = false;
+        this.world.grid[this.x][this.y] = false;
         this.x = x;
         this.y = y;
-        world.grid[x][y] = this;
+        this.world.grid[x][y] = this;
     }
 
     displaceParticle = function (otherParticle) {
@@ -323,7 +324,7 @@ class MoveableParticle extends Particle {
         otherParticle.moveToGridPosition(this.x, this.y);
         this.x = tempX;
         this.y = tempY;
-        world.grid[tempX][tempY] = this;
+        this.world.grid[tempX][tempY] = this;
 
     }
 }
@@ -333,8 +334,8 @@ class SandParticle extends MoveableParticle {
 
     static BASE_COLOR = '#e5b55f';
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.weight = 90;
         this.updateList = [
             [+0, +1],
@@ -367,8 +368,8 @@ class SandParticle extends MoveableParticle {
 
 class FluidParticle extends MoveableParticle {
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.updateList = [
             [+0, +1],
             [-1, +1],
@@ -411,8 +412,8 @@ class WaterParticle extends FluidParticle {
 
     static BASE_COLOR = '#2b64c3';
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.weight = 60;
     }
 
@@ -421,7 +422,7 @@ class WaterParticle extends FluidParticle {
     }
 
     evaporate() {
-        world.replaceParticle(this, new SteamParticle(this.x, this.y));
+        this.world.replaceParticle(this, new SteamParticle(this.x, this.y, this.world));
     }
 }
 
@@ -430,8 +431,8 @@ class SteamParticle extends FluidParticle {
     static BASE_COLOR = '#c0d2f2'
     static BASE_CONDENSATION_COUNTDOWN = 120;
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.weight = -3;
         this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN + random(-10, 10);
     }
@@ -450,15 +451,15 @@ class SteamParticle extends FluidParticle {
     }
 
     condensate() {
-        world.replaceParticle(this, new WaterParticle(this.x, this.y))
+        this.world.replaceParticle(this, new WaterParticle(this.x, this.y, this.world))
     }
 }
 
 class GasolineParticle extends FluidParticle {
     static BASE_COLOR = '#6922A2'
 
-    constructor(x, y) {
-        super(x, y);
+    constructor(x, y, world) {
+        super(x, y, world);
         this.weight = 50;
         this.flammability = 1;
         this.fuelValue = 5;

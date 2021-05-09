@@ -1,5 +1,9 @@
 class World {
     constructor(gridWidth, gridHeight) {
+        this.reset(gridWidth, gridHeight);
+    }
+
+    reset(gridWidth, gridHeight) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.particleSet = new Set();
@@ -21,7 +25,7 @@ class World {
                     y === 0 || y === this.gridHeight - 1
                     || x === 0 || x === this.gridWidth - 1
                 ) {
-                    this.addParticle(new IndestructibleWallParticle(x, y));
+                    this.addParticle(new IndestructibleWallParticle(x, y, this));
                 }
             }
         }
@@ -49,9 +53,9 @@ class World {
         }
     }
 
-    showAllParticles() {
+    showAllParticles(ctx, pixelsPerParticle) {
         for (let p of this.particleSet) {
-            p.show();
+            p.show(ctx, pixelsPerParticle);
         }
     }
 }
