@@ -19,6 +19,7 @@ let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
 
+const AIR_WEIGHT = 1;
 
 const PARTICLE_TYPES = {
 	'Stone Wall': WallParticle,
@@ -116,7 +117,7 @@ function setup() {
 	scaleLabel = createP('Scale: ');
 	scaleLabel.parent(scaleDiv);
 
-	scaleSlider = createSlider(1, 16, 4, 1);
+	scaleSlider = createSlider(1, 16, pixelsPerParticle, 1);
 	scaleSlider.parent(scaleDiv);
 	scaleSlider.changed(function() {
 		pixelsPerParticle = scaleSlider.value();
@@ -130,6 +131,9 @@ function setup() {
 	numParticleDisplay.parent('gui-div');
 
 
+	// mousePressed = function() {
+
+	// }
 	// ******************** SETUP WORLD ********************
 	// world.initializeEmptyGrid();
 
@@ -140,7 +144,6 @@ function draw() {
 	frameRate(frSlider.value())
 
 	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
-
 	handleMouseClick();
 	if (!paused) {
 		world.updateAllParticles();
@@ -148,10 +151,8 @@ function draw() {
 
 	canvasContext.save()
 	background('#333333');
-
 	// Separate loop for showing because sometimes particles will be moved by others after they update
 	world.showAllParticles(canvasContext, pixelsPerParticle);
-
 	canvasContext.restore();
 
 	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));

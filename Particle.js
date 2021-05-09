@@ -256,32 +256,49 @@ class MoveableParticle extends Particle {
     constructor(x, y, world) {
         super(x, y, world);
         this.weight = Infinity;
+        this.hasBeenDisplaced = false;
+    }
+
+    update() {
+        this.hasBeenDisplaced = false;
     }
 
     tryGridPosition(x, y, trySwap = true) {
-        // TODO: Rewrite this to work in any direction, accounting for weight
-        // TODO: Maybe add a property that says a particle has already been
-        // moved this frame and can't move again
+
+        // Do we move up or down in empty space?
+        let rises = this.weight < AIR_WEIGHT;
 
         let p = this.world.grid[x][y];
         // Move to the given position if it's empty.
         if (!p) {
-            if (this.weight * random() > Math.sign(this.weight)) {
+            if (
+                // Whether to check if we're heavier than air or air's heavier than us
+                // depends on if we move up or down
+                (!rises && (this.weight * random() > AIR_WEIGHT))
+                ||
+                (rises && (AIR_WEIGHT * random() > this.weight))
+            ) {
                 this.moveToGridPosition(x, y);
                 return true;
             }
         }
         // If there's something there maybe displace it as long as it's not the
-        // thing that's trying to displace us and it's moveable and we're
-        // heavier than it with some randomness involved
+        // thing that's trying to displace us and it's moveable
         else if (
             trySwap
             && p instanceof MoveableParticle
-            // && y > this.y
-            && random() > p.weight / this.weight
+            && !p.hasBeenDisplaced
         ) {
-            this.displaceParticle(p);
-            return true;
+            // Whether to check if we're heavier than it or it's heavier than us
+            // depends on if we move up or down
+            if (
+                (!rises && (this.weight * random() > p.weight))
+                ||
+                (rises && (p.weight * random() > this.weight))
+            ) {
+                this.displaceParticle(p, rises);
+                return true;
+            }
         }
         // We failed to move to the given grid position
         return false;
@@ -293,41 +310,49 @@ class MoveableParticle extends Particle {
         this.y = y;
     }
 
-    displaceParticle(otherParticle) {
+    displaceParticle(otherParticle, rises) {
         // Move another particle so we can take its spot
         let tempX = otherParticle.x;
         let tempY = otherParticle.y;
+        let dir = (rises) ? -1 : +1;
 
-        // Positions relative to this particle to try moving the other one to,
-        // in order
+        // Positions relative to the other particle to try moving it to
         let positionsToTry = [
-            [+1, +1],
-            [-1, +1],
             [+1, +0],
-            [-1, +0]
+            [-1, +0],
+            [+1, dir],
+            [-1, dir]
         ]
 
         let moved = false;
         for (let i = 0; i < positionsToTry.length; i++) {
             let p = positionsToTry[i];
-            // Get the other particle to try the potential grid positions. TODO
-            // I'm not actually sure if the "tryswap = false" (the last
-            // arguement) is necessary here anymore.
-            moved = otherParticle.tryGridPosition(this.x + p[0], this.y + p[1], false);
+            // Get the other particle to try the potential grid positions.
+            moved = otherParticle.tryGridPosition(
+                otherParticle.x + p[0],
+                otherParticle.y + p[1],
+                false
+            );
             if (moved) {
-                // If we got the other particle to move, then we can take its spot.
-                this.moveToGridPosition(tempX, tempY);
-                return;
+                break;
             }
         }
 
-        // Worst case we put the other particle in our position and then move to
-        // its position
-        otherParticle.moveToGridPosition(this.x, this.y);
-        this.x = tempX;
-        this.y = tempY;
-        this.world.grid[tempX][tempY] = this;
+        if (moved) {
+            // If we got the other particle to move, then we can take its spot.
+            this.moveToGridPosition(tempX, tempY);
+        }
+        else {
+            // Worst case we put the other particle in our position and then move to
+            // its position
+            // TEMP: Probably add a swapParticles method in World
+            otherParticle.moveToGridPosition(this.x, this.y);
+            this.x = tempX;
+            this.y = tempY;
+            this.world.grid[tempX][tempY] = this;
+        }
 
+        otherParticle.hasBeenDisplaced = true;
     }
 }
 
@@ -360,10 +385,13 @@ class SandParticle extends MoveableParticle {
             let u = this.updateList[i];
             moved = this.tryGridPosition(this.x + u[0], this.y + u[1]);
             if (moved) {
+                super.update();
                 return moved;
             }
         }
+        super.update();
         return moved;
+
     }
 }
 
@@ -387,8 +415,8 @@ class FluidParticle extends MoveableParticle {
         for (let i = 0; i < this.updateList.length; i++) {
             let u = this.updateList[i];
             moved = this.tryGridPosition(
-                this.x + Math.sign(this.weight) * u[0],
-                this.y + Math.sign(this.weight) * u[1],
+                this.x + Math.sign(this.weight - AIR_WEIGHT) * u[0],
+                this.y + Math.sign(this.weight - AIR_WEIGHT) * u[1],
                 trySwap
             );
 
@@ -402,10 +430,13 @@ class FluidParticle extends MoveableParticle {
                     this.updateList[3] = this.updateList[4];
                     this.updateList[4] = temp;
                 }
+                super.update();
                 return moved;
             }
         }
+        super.update();
         return moved;
+
     }
 }
 
@@ -431,17 +462,17 @@ class WaterParticle extends FluidParticle {
 
 class SteamParticle extends FluidParticle {
     static BASE_COLOR = '#c0d2f2'
-    static BASE_CONDENSATION_COUNTDOWN = 120;
+    static BASE_CONDENSATION_COUNTDOWN = 100;
 
     constructor(x, y, world) {
         super(x, y, world);
-        this.weight = -3;
+        this.weight = 0.5;
         this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN + random(-10, 10);
     }
 
     update() {
         let lastY = this.y;
-        super.update(false);
+        super.update(true);
 
         if (this.condensationCountdown <= 0) {
             this.condensate();
@@ -449,6 +480,9 @@ class SteamParticle extends FluidParticle {
 
         if (this.y === lastY) {
             this.condensationCountdown--;
+        }
+        else {
+            this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN;
         }
     }
 
