@@ -491,6 +491,21 @@ class SteamParticle extends FluidParticle {
     }
 }
 
+class PropaneParticle extends FluidParticle {
+    static BASE_COLOR = '#9379a8';
+
+    constructor(x, y, world) {
+        super(x, y, world);
+        this.weight = 0.7;
+        this.flammability = 1;
+        this.fuelValue = 5;
+    }
+
+    update() {
+        super.update(true);
+    }
+}
+
 class GasolineParticle extends FluidParticle {
     static BASE_COLOR = '#6922A2'
 

@@ -13,6 +13,7 @@ Just a basic falling sand simulator I'm making for fun to practise p5/processing
 - Plants: Consumes water and grows in weird patterns. Burns.
 - Fire: Burns things.
 - Gasoline: Like water, but a little lighter and burns.
+- Propane: Like Gasoline, but a gas. Heavier than steam.
 
 ## To Do:
 - Add button to reset sim
@@ -40,5 +41,6 @@ Particle
     ├ WaterParticle
     ├ SteamParticle
     ├ GasolineParticle
+    ├ PropaneParticle
 </pre>
 
