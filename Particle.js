@@ -74,8 +74,8 @@ class WoodParticle extends Particle {
 
     constructor(x, y, world) {
         super(x, y, world);
-        this.flammability = 0.2;
-        this.fuelValue = 60;
+        this.flammability = 0.1;
+        this.fuelValue = 200;
     }
 }
 
@@ -186,7 +186,7 @@ class FlameParticle extends FireParticle {
 
     update() {
         this.color = adjustHSBofString(this.constructor.BASE_COLOR,
-            random(0.9, 1.1), random(0.95, 1.05), random(0.95, 1.05));
+            random(0.9, 1.1), random(0.95, 1.05), random(0.5, 1.5));
         super.update();
     }
 }

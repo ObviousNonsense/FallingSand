@@ -34,6 +34,7 @@ Particle
 ├ IndestructibleWallParticle
 ├ WoodParticle
 ├ FireParticle
+  ├ FlameParticle
 ├ PlantParticle
 ├ Moveable Particle
   ├ SandParticle
