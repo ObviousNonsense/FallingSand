@@ -503,7 +503,8 @@ class SteamParticle extends FluidParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.weight = 0.5;
-        this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN + random(-10, 10);
+        this.initialConensationCountdown = round(this.constructor.BASE_CONDENSATION_COUNTDOWN*random(0.7, 1.3));
+        this.condensationCountdown = this.initialConensationCountdown;
     }
 
     update() {
@@ -518,7 +519,7 @@ class SteamParticle extends FluidParticle {
             this.condensationCountdown--;
         }
         else {
-            this.condensationCountdown = this.constructor.BASE_CONDENSATION_COUNTDOWN;
+            this.condensationCountdown = this.initialConensationCountdown;
         }
     }
 

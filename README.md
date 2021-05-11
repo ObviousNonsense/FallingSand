@@ -23,6 +23,9 @@ Just a basic falling sand simulator I'm making for fun to practise p5/processing
 - Add Particle types?:
     - Smoke
     - Ice
+    - Stones/Wood that falls
+    - Explosions. Is that a particle?
+    - Ash? Charred wood?
 - Improve performance? I've tried multiple things to increase the number of particles that can be drawn without dropping frames, but I think I'm at the limit of what I can do with p5/HTML canvas.
 
 ## Particle Inheritance Tree:
