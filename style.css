@@ -45,7 +45,20 @@ canvas {
 }
 
 .button-row * {
-  padding: 10px;
+  padding: 5px;
+  margin: auto;
+}
+
+.button-column {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+
+  /* align-items: space-around; */
+}
+
+.button-column * {
+  padding: auto;
   margin: auto;
 }
 
