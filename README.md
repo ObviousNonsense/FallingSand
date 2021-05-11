@@ -17,15 +17,21 @@ Just a basic falling sand simulator I'm making for fun to practise p5/processing
 - Gunpowder: Basically flammable sand.
 
 ## To Do:
-- Add button to reset sim
-- Add button to resize canvas
 - Clean up UI
-- Add Particle types?:
+- Add Particles/Mechanics:
     - Smoke
     - Ice
     - Stones/Wood that falls
-    - Explosions. Is that a particle?
+    - Concussive explosions/pressure/momentum
     - Ash? Charred wood?
+    - Have sources be tunable
+      - Option to replace
+      - Tunable frequency/quantity/likelihood
+      - Create particles in an area instead of around the edges (i.e. the source itself would not take up space)
+    - Make fire a method instead of a particle type, then have it reduce the fuel of whatever it's burning
+      - That way the particle will still move/act like itself,
+      - And the particle that's burning will still be there if the fire is put out
+- Ability to replace all particles of one type with another type (or fill)
 - Improve performance? I've tried multiple things to increase the number of particles that can be drawn without dropping frames, but I think I'm at the limit of what I can do with p5/HTML canvas.
 
 ## Particle Inheritance Tree:

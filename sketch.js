@@ -13,6 +13,11 @@ let paused = false;
 let resetButton;
 let scaleSlider;
 let scaleLabel;
+let sizeInputX;
+let sizeInputY;
+let sizeInputXlabel;
+let sizeInputYlabel;
+let resizeButton;
 let randomButton;
 let randomThresholdSlider;
 let randomScaleSlider;
@@ -101,25 +106,29 @@ function setup() {
 	let randomDiv = createDiv();
 	randomDiv.parent('gui-div');
 	randomDiv.class('button-row');
-	let randomSliderDiv = createDiv();
-	randomSliderDiv.class('button-column');
 
-	randomButton = createButton('Random fill with selected');
+	randomButton = createButton('Random fill<br>with selected');
 	randomButton.mousePressed(randomFill);
 	randomButton.parent(randomDiv);
 
+	let randomSliderDiv = createDiv();
+	randomSliderDiv.class('button-column');
 	randomSliderDiv.parent(randomDiv);
+
+	let randomScaleSliderLabel = createP('Random Detail: ')
+	randomScaleSliderLabel.class('button-row')
+	randomScaleSliderLabel.parent(randomSliderDiv);
+
 	randomScaleSlider = createSlider(1, 10, 4, 0.1);
 	randomScaleSlider.size(70, AUTO)
-	let randomScaleSliderLabel = createP('Random Detail: ')
-	randomScaleSliderLabel.addClass('button-row')
-	randomScaleSliderLabel.parent(randomSliderDiv);
+	randomScaleSlider.parent(randomScaleSliderLabel);
+
 	let randomThresholdSliderLabel = createP('Random Threshold: ')
-	randomThresholdSliderLabel.addClass('button-row')
+	randomThresholdSliderLabel.class('button-row')
 	randomThresholdSliderLabel.parent(randomSliderDiv);
+
 	randomThresholdSlider = createSlider(-0.5, 0.5, 0, 0.05);
 	randomThresholdSlider.size(70, AUTO)
-	randomScaleSlider.parent(randomScaleSliderLabel);
 	randomThresholdSlider.parent(randomThresholdSliderLabel);
 
 	let simDiv = createDiv();
@@ -145,17 +154,41 @@ function setup() {
 	scaleDiv.parent('gui-div');
 	scaleDiv.class('button-row');
 
+	resizeButton = createButton('Reset & Resize World<br>(may affect performance)')
+	resizeButton.parent(scaleDiv);
+
+	let resizeInputDiv = createDiv();
+	resizeInputDiv.class('buttom-column');
+	resizeInputDiv.parent(scaleDiv);
+
+	sizeInputXlabel = createDiv('x: ');
+	sizeInputXlabel.parent(resizeInputDiv);
+
+	sizeInputX = createInput(world.gridWidth, 'number');
+	sizeInputX.parent(sizeInputXlabel);
+	sizeInputX.size(40, AUTO);
+
+	sizeInputYlabel = createDiv('y: ')
+	sizeInputYlabel.parent(resizeInputDiv);
+
+	sizeInputY = createInput(world.gridWidth, 'number');
+	sizeInputY.parent(sizeInputYlabel);
+	sizeInputY.size(40, AUTO);
+
+	resizeButton.mousePressed(function () {
+		world.reset(parseInt(sizeInputX.value()), parseInt(sizeInputY.value()));
+		updateCanvasSize();
+	})
+
 	scaleLabel = createP('Scale: ');
 	scaleLabel.parent(scaleDiv);
 
 	scaleSlider = createSlider(1, 16, pixelsPerParticle, 1);
 	scaleSlider.parent(scaleDiv);
+	scaleSlider.size(70, AUTO);
 	scaleSlider.changed(function () {
 		pixelsPerParticle = scaleSlider.value();
-		resizeCanvas(world.gridWidth * pixelsPerParticle,
-			world.gridHeight * pixelsPerParticle);
-		let canvas = document.getElementById('defaultCanvas0');
-		canvasContext = canvas.getContext('2d');
+		updateCanvasSize();
 	})
 
 	numParticleDisplay = createP('');
@@ -189,6 +222,14 @@ function draw() {
 	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
 	numParticleDisplay.html('Number of Particles: ' + world.particleSet.size);
 	// noLoop();
+}
+
+
+updateCanvasSize = function () {
+	resizeCanvas(world.gridWidth * pixelsPerParticle,
+		world.gridHeight * pixelsPerParticle);
+	let canvas = document.getElementById('defaultCanvas0');
+	canvasContext = canvas.getContext('2d');
 }
 
 
@@ -260,11 +301,11 @@ randomFill = function () {
 
 	if (action != 'Delete') {
 		for (x = 1; x < world.gridWidth - 1; x++) {
-			for (y = 1; y < world.gridWidth - 1; y++) {
+			for (y = 1; y < world.gridHeight - 1; y++) {
 				// TODO: Make the "map value" and threshold controllable
 				let map_value = randomScaleSlider.value();
 				let xnorm = map(x, 1, world.gridWidth - 1, -map_value, map_value);
-				let ynorm = map(y, 1, world.gridWidth - 1, -map_value, map_value);
+				let ynorm = map(y, 1, world.gridHeight - 1, -map_value, map_value);
 				if (simplex.noise2D(xnorm, ynorm) > randomThresholdSlider.value()) {
 					let p = world.grid[x][y];
 					if (p) {
