@@ -1,6 +1,7 @@
 class Particle {
 
     static BASE_COLOR = '#FFFFFF';
+    static BURNING_COLOR = '#E65C00';
 
     /**
     * @param {World} world
@@ -9,9 +10,41 @@ class Particle {
         this.x = x;
         this.y = y;
         this.world = world;
-        this.flammability = 0;
+
         let c = this.constructor.BASE_COLOR;
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
+        this.originalColor = this.color;
+
+        this.flammability = 0;
+        this.fuel = Infinity;
+        this.originalFuel = 0;
+        this._burning = false;
+    }
+
+    /**
+    * @param {boolean} b
+    */
+    set burning(b) {
+        if (b) {
+            if (!this._burning) {
+                this.originalFuel = max(this.originalFuel, this.fuel);
+                this.originalColor = this.color;
+            }
+        }
+        else {
+            if (this instanceof FluidParticle) {
+                this.color = this.originalColor;
+            }
+            else {
+                this.color = adjustHSBofString(
+                    this.originalColor, 1, 1, map(this.fuel, 0, this.originalFuel, 0.2, 1));
+            }
+        }
+        this._burning = b;
+    }
+
+    get burning() {
+        return this._burning;
     }
 
     show(ctx, pixelsPerParticle) {
@@ -25,11 +58,64 @@ class Particle {
     }
 
     update() {
+        if (this.burning) {
+            this.burn();
+        }
+
         return false;
     }
 
     delete() {
         this.world.deleteParticle(this);
+    }
+
+    burn() {
+        this.color = this.burningFlickerColor();
+
+        let neighbourList = [
+            [0, -1],
+            [+1, 0],
+            [-1, 0],
+            [0, +1],
+        ];
+
+        for (let i = 0; i < neighbourList.length; i++) {
+            let d = neighbourList[i];
+            let xn = this.x + d[0];
+            let yn = this.y + d[1];
+            let neighbour = this.world.grid[xn][yn];
+            if (neighbour.flammability > 0 && !neighbour.burning) {
+                if (neighbour.flammability * (1 - 0.5 * d[1]) > random()) {
+                    neighbour.burning = true;
+                }
+            }
+            else if (!neighbour && this.fuel > 0) {
+                if (d[1] < 1
+                    && this.world.grid[this.x - 1][this.y].burning
+                    && this.world.grid[this.x + 1][this.y].burning
+                ) {
+                    this.world.addParticle(
+                        new FlameParticle(xn, yn, this.world,
+                            random([...Array(this.fuel).keys()]))
+                    );
+                }
+            }
+            else if (neighbour instanceof WaterParticle) {
+                neighbour.evaporate();
+                this.burning = false;
+                break;
+            }
+        }
+
+        this.fuel--;
+        if (this.fuel < 0) {
+            this.delete();
+        }
+    }
+
+    burningFlickerColor() {
+        return adjustHSBofString(this.constructor.BURNING_COLOR,
+            random(0.95, 1.05), random(0.95, 1.05), random(0.95, 1.05));
     }
 }
 
@@ -56,6 +142,8 @@ class ParticleSink extends Particle {
         if (neighbour && !neighbour.indestructible) {
             neighbour.delete();
         }
+
+        super.update();
     }
 }
 
@@ -69,13 +157,14 @@ class WallParticle extends Particle {
     }
 }
 
+
 class WoodParticle extends Particle {
     static BASE_COLOR = '#C17736'
 
     constructor(x, y, world) {
         super(x, y, world);
         this.flammability = 0.1;
-        this.fuelValue = 200;
+        this.fuel = 200;
     }
 }
 
@@ -117,78 +206,43 @@ class ParticleSource extends Particle {
         if (!neighbour) {
             this.world.addParticle(new this.particleType(xn, yn, this.world));
         }
+
+        super.update();
     }
 }
 
 
-class FireParticle extends Particle {
-    static BASE_COLOR = '#e65c00'
+class FlameParticle extends Particle {
+    static BASE_COLOR = '#ff7700'
+    static BURNING_COLOR = '#ff7700'
 
     constructor(x, y, world, fuel = 0) {
         super(x, y, world);
         this.fuel = fuel;
+        this.burning = true;
         this.fresh = true;
-        this.neighbourList = [
-            [0, -1],
-            [0, +1],
-            [+1, 0],
-            [-1, 0],
-        ]
+        this.color = this.constructor.BASE_COLOR;
     }
 
     update() {
-        if (!this.fresh) {
-            for (let i = 0; i < this.neighbourList.length; i++) {
-                let d = this.neighbourList[i];
-                let xn = this.x + d[0];
-                let yn = this.y + d[1];
-                let neighbour = this.world.grid[xn][yn];
-                if (neighbour.flammability > 0) {
-                    // if (neighbour.flammability > random()) {
-                    if (neighbour.flammability*(1 - 0.5*d[1]) > random()) {
-                        this.world.replaceParticle(neighbour,
-                            new FireParticle(xn, yn, this.world, neighbour.fuelValue));
-                    }
-                }
-                else if(!neighbour && this.fuel > 0) {
-                    if (d[1] < 1
-                        && this.world.grid[this.x - 1][this.y] instanceof FireParticle
-                        && this.world.grid[this.x + 1][this.y] instanceof FireParticle
-                    ) {
-                        this.world.addParticle(
-                            new FlameParticle(xn, yn, this.world,
-                                random([...Array(this.fuel).keys()]))
-                        );
-                    }
-                }
-                else if (neighbour instanceof WaterParticle) {
-                    neighbour.evaporate();
-                    this.fuel = 0;
-                    break;
-                }
-            }
+        // this.color = adjustHSBofString(this.constructor.BASE_COLOR,
+        //     random(0.9, 1.1), random(0.95, 1.05), random(0.5, 1.5));
 
-            this.fuel--;
-            if (this.fuel < 0) {
-                this.delete();
-            }
+        if (!this.fresh) {
+            super.update();
         }
         else {
             this.fresh = false;
         }
-    }
-}
 
-class FlameParticle extends FireParticle {
-    static BASE_COLOR = '#ff7700'
-    constructor(x, y, world, fuel = 0) {
-        super(x, y, world, fuel);
+        if (!this.burning) {
+            this.delete();
+        }
     }
 
-    update() {
-        this.color = adjustHSBofString(this.constructor.BASE_COLOR,
+    burningFlickerColor() {
+        return adjustHSBofString(this.constructor.BURNING_COLOR,
             random(0.9, 1.1), random(0.95, 1.05), random(0.5, 1.5));
-        super.update();
     }
 }
 
@@ -202,7 +256,7 @@ class PlantParticle extends Particle {
         this.color_watered = this.color;
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
-        this.fuelValue = 20;
+        this.fuel = 20;
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -273,6 +327,8 @@ class PlantParticle extends Particle {
                 this.watered = true;
             }
         }
+
+        super.update();
     }
 }
 
@@ -287,6 +343,7 @@ class MoveableParticle extends Particle {
 
     update() {
         this.hasBeenDisplaced = false;
+        super.update();
     }
 
     tryGridPosition(x, y, trySwap = true) {
@@ -428,7 +485,7 @@ class GunpowderParticle extends SandParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.flammability = 0.7;
-        this.fuelValue = 25;
+        this.fuel = 25;
     }
 }
 
@@ -504,7 +561,7 @@ class SteamParticle extends FluidParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.weight = 0.5;
-        this.initialConensationCountdown = round(this.constructor.BASE_CONDENSATION_COUNTDOWN*random(0.7, 1.3));
+        this.initialConensationCountdown = round(this.constructor.BASE_CONDENSATION_COUNTDOWN * random(0.7, 1.3));
         this.condensationCountdown = this.initialConensationCountdown;
     }
 
@@ -537,7 +594,7 @@ class HydrogenParticle extends FluidParticle {
         super(x, y, world);
         this.weight = 0.2;
         this.flammability = 0.95;
-        this.fuelValue = 6;
+        this.fuel = 6;
     }
 
     update() {
@@ -552,7 +609,7 @@ class GasolineParticle extends FluidParticle {
         super(x, y, world);
         this.weight = 50;
         this.flammability = 0.95;
-        this.fuelValue = 10;
+        this.fuel = 10;
     }
 
     update() {
