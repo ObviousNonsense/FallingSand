@@ -256,7 +256,7 @@ class PlantParticle extends Particle {
         this.color_watered = this.color;
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
-        this.fuel = 20;
+        this.fuel = 35;
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -273,11 +273,11 @@ class PlantParticle extends Particle {
         this._watered = w;
         if (w) {
             this.color = this.color_watered;
-            this.flammability = 0.05;
+            this.flammability = 0.025;
         }
         else {
             this.color = this.color_dry;
-            this.flammability = 0.15;
+            this.flammability = 0.10;
         }
     }
 
@@ -609,7 +609,7 @@ class GasolineParticle extends FluidParticle {
         super(x, y, world);
         this.weight = 50;
         this.flammability = 0.95;
-        this.fuel = 10;
+        this.fuel = 15;
     }
 
     update() {
