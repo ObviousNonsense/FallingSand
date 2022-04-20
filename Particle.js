@@ -11,6 +11,8 @@ class Particle {
         this.y = y;
         this.world = world;
 
+        this.need_to_show = false;
+
         let c = this.constructor.BASE_COLOR;
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
         this.originalColor = this.color;
@@ -47,14 +49,29 @@ class Particle {
         return this._burning;
     }
 
+    /**
+     * @param {Color} c
+     */
+    set color(c) {
+        this._color = c;
+        this.need_to_show = true;
+    }
+
+    get color() {
+        return this._color;
+    }
+
     show(ctx, pixelsPerParticle) {
-        // Using native javascript for drawing on the canvas is faster than
-        // using p5's methods
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x * pixelsPerParticle,
-            this.y * pixelsPerParticle,
-            pixelsPerParticle,
-            pixelsPerParticle);
+        // if (this.need_to_show) {
+            // Using native javascript for drawing on the canvas is faster than
+            // using p5's methods
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x * pixelsPerParticle,
+                this.y * pixelsPerParticle,
+                pixelsPerParticle,
+                pixelsPerParticle);
+            this.need_to_show = false;
+        // }
     }
 
     update() {
@@ -89,7 +106,8 @@ class Particle {
                     neighbour.burning = true;
                 }
             }
-            else if (!neighbour && this.fuel > 0) {
+            // else if (!neighbour && this.fuel > 0) {
+            else if ((neighbour instanceof AirParticle) && this.fuel > 0) {
                 if (d[1] < 1
                     && this.world.grid[this.x - 1][this.y].burning
                     && this.world.grid[this.x + 1][this.y].burning
@@ -175,7 +193,7 @@ class IndestructibleWallParticle extends WallParticle {
 
     // These are the particles used to define the border of the world so I don't
     // have to worry about checking the edges of the array. They are
-    // indesctructible so sinks can't destroy them.
+    // indestructible so sinks can't destroy them.
     constructor(x, y, world) {
         super(x, y, world);
         this.indestructible = true;
@@ -203,7 +221,8 @@ class ParticleSource extends Particle {
         let xn = this.x + d[0];
         let yn = this.y + d[1];
         let neighbour = this.world.grid[xn][yn];
-        if (!neighbour) {
+        // if (!neighbour) {
+        if (neighbour instanceof AirParticle) {
             this.world.addParticle(new this.particleType(xn, yn, this.world));
         }
 
@@ -291,7 +310,8 @@ class PlantParticle extends Particle {
         let yn = this.y + d[1];
         let neighbour = this.world.grid[xn][yn];
         if (this.watered) {
-            if (!neighbour) {
+            // if (!neighbour) {
+            if (neighbour instanceof AirParticle) {
                 // Check if the empty space I want to grow into doesn't have too
                 // many neighbours
                 let count = 0;
@@ -353,21 +373,22 @@ class MoveableParticle extends Particle {
 
         let p = this.world.grid[x][y];
         // Move to the given position if it's empty.
-        if (!p) {
-            if (
-                // Whether to check if we're heavier than air or air's heavier than us
-                // depends on if we move up or down
-                (!rises && (this.weight * random() > AIR_WEIGHT))
-                ||
-                (rises && (AIR_WEIGHT * random() > this.weight))
-            ) {
-                this.moveToGridPosition(x, y);
-                return true;
-            }
-        }
+        // if (!p) {
+        //     if (
+        //         // Whether to check if we're heavier than air or air's heavier than us
+        //         // depends on if we move up or down
+        //         (!rises && (this.weight * random() > AIR_WEIGHT))
+        //         ||
+        //         (rises && (AIR_WEIGHT * random() > this.weight))
+        //     ) {
+        //         this.moveToGridPosition(x, y);
+        //         return true;
+        //     }
+        // }
         // If there's something there maybe displace it as long as it's not the
         // thing that's trying to displace us and it's moveable
-        else if (
+        // else if (
+        if (
             trySwap
             && p instanceof MoveableParticle
             && !p.hasBeenDisplaced
@@ -391,6 +412,7 @@ class MoveableParticle extends Particle {
         this.world.moveParticleInGrid(this, x, y);
         this.x = x;
         this.y = y;
+        this.need_to_show = true;
     }
 
     displaceParticle(otherParticle, rises) {
@@ -553,6 +575,15 @@ class WaterParticle extends FluidParticle {
     }
 }
 
+class AirParticle extends FluidParticle {
+    static BASE_COLOR = '#333333';
+
+    constructor(x, y, world){
+        super(x, y, world);
+        this.weight = AIR_WEIGHT;
+        this.color = this.constructor.BASE_COLOR;
+    }
+}
 
 class SteamParticle extends FluidParticle {
     static BASE_COLOR = '#c0d2f2'
@@ -561,8 +592,8 @@ class SteamParticle extends FluidParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.weight = 0.5;
-        this.initialConensationCountdown = round(this.constructor.BASE_CONDENSATION_COUNTDOWN * random(0.7, 1.3));
-        this.condensationCountdown = this.initialConensationCountdown;
+        this.initialCondensationCountdown = round(this.constructor.BASE_CONDENSATION_COUNTDOWN * random(0.7, 1.3));
+        this.condensationCountdown = this.initialCondensationCountdown;
     }
 
     update() {
@@ -577,7 +608,7 @@ class SteamParticle extends FluidParticle {
             this.condensationCountdown--;
         }
         else {
-            this.condensationCountdown = this.initialConensationCountdown;
+            this.condensationCountdown = this.initialCondensationCountdown;
         }
     }
 

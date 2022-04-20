@@ -98,7 +98,7 @@ function setup() {
 	brushSizeDisplay = createP('');
 	brushSizeDisplay.parent(brushDiv);
 
-	brushSizeSlider = createSlider(1, min(16, min(world.gridWidth, world.gridHeight)), 2, 1);
+	brushSizeSlider = createSlider(1, min(16, min(world.gridWidth, world.gridHeight)), 1, 1);
 	brushSizeSlider.parent(brushDiv);
 	brushReplaceCheckbox = createCheckbox('Replace?', true)
 	brushReplaceCheckbox.parent(brushDiv);
@@ -214,7 +214,7 @@ function draw() {
 	}
 
 	canvasContext.save()
-	background('#333333');
+	// background('#333333');
 	// Separate loop for showing because sometimes particles will be moved by others after they update
 	world.showAllParticles(canvasContext, pixelsPerParticle);
 	canvasContext.restore();

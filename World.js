@@ -17,7 +17,8 @@ class World {
             for (let y = 0; y < this.gridHeight; y++) {
 
                 // Initialize most grid positions to false
-                this.grid[x][y] = false;
+                // this.grid[x][y] = false;
+                this.addParticle(new AirParticle(x, y, this));
 
                 // Initialize boundaries to indestructible walls so I don't ever
                 // have to check if we're looking outside the array bounds
@@ -35,6 +36,10 @@ class World {
     * @param {Particle} p
     */
     addParticle(p) {
+        let oldP = this.grid[p.x][p.y];
+        if (oldP != false){
+            this.particleSet.delete(oldP);
+        }
         this.grid[p.x][p.y] = p;
         this.particleSet.add(p);
     }
@@ -43,7 +48,8 @@ class World {
     * @param {Particle} p
     */
     deleteParticle(p) {
-        this.grid[p.x][p.y] = false;
+        // this.grid[p.x][p.y] = false;
+        this.addParticle(new AirParticle(p.x, p.y, this));
         this.particleSet.delete(p);
     }
 
@@ -61,7 +67,11 @@ class World {
     * @param {Particle} p
     */
     moveParticleInGrid(p, newX, newY) {
-        this.grid[p.x][p.y] = false;
+        let oldP = this.grid[newX, newY];
+        oldP.x = p.x;
+        oldP.y = p.y;
+        this.grid[p.x][p.y] = this.grid[newX, newY];
+        // this.grid[p.x][p.y] = false;
         this.grid[newX][newY] = p;
     }
 
