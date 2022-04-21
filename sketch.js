@@ -214,7 +214,7 @@ function draw() {
 	}
 
 	canvasContext.save()
-	background('#333333');
+	// background('#333333');
 	// Separate loop for showing because sometimes particles will be moved by others after they update
 	world.showAllParticles(canvasContext, pixelsPerParticle);
 	canvasContext.restore();

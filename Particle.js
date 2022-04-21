@@ -47,14 +47,53 @@ class Particle {
         return this._burning;
     }
 
+    /**
+     * @param {Color} c
+     */
+    set color(c) {
+        this._color = c;
+        this.need_to_show = true;
+    }
+
+    get color() {
+        return this._color;
+    }
+
+    /**
+     * @param {int} val
+     */
+    set x(val) {
+        this._x = val;
+        this.need_to_show = true;
+    }
+
+    get x() {
+        return this._x;
+    }
+
+    /**
+     * @param {int} val
+     */
+     set y(val) {
+        this._y = val;
+        this.need_to_show = true;
+    }
+
+    get y() {
+        return this._y;
+    }
+
     show(ctx, pixelsPerParticle) {
-        // Using native javascript for drawing on the canvas is faster than
-        // using p5's methods
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x * pixelsPerParticle,
-            this.y * pixelsPerParticle,
-            pixelsPerParticle,
-            pixelsPerParticle);
+        if (this.need_to_show) {
+            // Using native javascript for drawing on the canvas is faster than
+            // using p5's methods
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x * pixelsPerParticle,
+                this.y * pixelsPerParticle,
+                pixelsPerParticle,
+                pixelsPerParticle);
+            this.need_to_show = false;
+        }
     }
 
     update() {
@@ -391,6 +430,7 @@ class MoveableParticle extends Particle {
         this.world.moveParticleInGrid(this, x, y);
         this.x = x;
         this.y = y;
+        // this.need_to_show = true;
     }
 
     displaceParticle(otherParticle, rises) {
