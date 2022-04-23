@@ -1,4 +1,4 @@
-let pixelsPerParticle = 25;
+let pixelsPerParticle = 4;
 let world;
 
 let canvasContext;
@@ -53,7 +53,7 @@ const PLACEABLE_TYPES = {
 
 function setup() {
 
-	world = new World(25, 25);
+	world = new World(100, 100);
 
 	// ******************** SETUP UI ********************
 
