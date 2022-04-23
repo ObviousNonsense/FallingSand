@@ -1,11 +1,4 @@
-class Zone extends Placeable {
-    show(ctx, pixelsPerParticle, drawOver) {
-        if (drawOver) {
-            this.need_to_show = true;
-        }
-        super.show(ctx, pixelsPerParticle);
-    }
-}
+class Zone extends Placeable {}
 
 
 class ParticleSink extends Zone {
@@ -17,6 +10,11 @@ class ParticleSink extends Zone {
         this.indestructible = true;
         // this.color = color(this.color);
         // this.color.setAlpha(0.25);
+    }
+
+    show(ctx, pixelsPerParticle) {
+        this.need_to_show = true;
+        super.show(ctx, pixelsPerParticle);
     }
 
     update() {
@@ -37,6 +35,13 @@ class ParticleSource extends Zone {
         this.particleType = sourceType;
         this.color = color(sourceType.BASE_COLOR);
         this.color.setAlpha(0.5);
+    }
+
+    show(ctx, pixelsPerParticle, drawOver) {
+        if (drawOver) {
+            this.need_to_show = true;
+        }
+        super.show(ctx, pixelsPerParticle);
     }
 
     update() {

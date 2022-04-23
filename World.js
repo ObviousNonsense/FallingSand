@@ -95,9 +95,13 @@ class World {
     * @param {Placeable} p
     */
     deletePlaceable(p) {
-        this.particleGrid[p.x][p.y] = false;
+        if (p instanceof Particle) {
+            this.particleGrid[p.x][p.y] = false;
+        }
+        else if (p instanceof Zone) {
+            this.zoneGrid[p.x][p.y] = false;
+        }
         this.redrawGrid[p.x][p.y] = true;
-        this.zoneGrid[p.x][p.y] = false;
         this.placeableSet.delete(p);
     }
 
