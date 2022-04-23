@@ -66,6 +66,6 @@ class Placeable {
     }
 
     delete() {
-        this.world.deleteParticle(this);
+        this.world.deletePlaceable(this);
     }
 }

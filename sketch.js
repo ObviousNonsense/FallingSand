@@ -210,17 +210,17 @@ function draw() {
 	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 	handleMouseClick();
 	if (!paused) {
-		world.updateAllParticles();
+		world.updateAll();
 	}
 
 	canvasContext.save()
 	// background('#333333');
 	// Separate loop for showing because sometimes particles will be moved by others after they update
-	world.showAllParticles(canvasContext, pixelsPerParticle);
+	world.showAll(canvasContext, pixelsPerParticle);
 	canvasContext.restore();
 
 	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
-	numParticleDisplay.html('Number of Particles: ' + world.particleSet.size);
+	numParticleDisplay.html('Number of Particles: ' + world.placeableSet.size);
 	// noLoop();
 }
 
@@ -276,13 +276,15 @@ handleMouseClick = function () {
 					if (ix <= world.gridWidth - 2 && ix >= 1 && iy <= world.gridHeight - 2 && iy >= 1) {
 						let action = radio.value();
 						if (action === 'Delete') {
-							let p = world.getParticle(ix, iy);
+							let p = world.getPlaceable(ix, iy);
 							if (p) {
-								world.deleteParticle(p);
+								world.deletePlaceable(p);
 							}
 						}
 						else {
-							world.addParticle(new PLACEABLE_TYPES[action](ix, iy, world), brushReplaceCheckbox.checked());
+							world.addPlaceable(
+								new PLACEABLE_TYPES[action](ix, iy, world),
+								brushReplaceCheckbox.checked());
 						}
 					}
 				}
@@ -304,7 +306,9 @@ randomFill = function () {
 				let xnorm = map(x, 1, world.gridWidth - 1, -map_value, map_value);
 				let ynorm = map(y, 1, world.gridHeight - 1, -map_value, map_value);
 				if (simplex.noise2D(xnorm, ynorm) > randomThresholdSlider.value()) {
-					world.addParticle(new PLACEABLE_TYPES[action](x, y, world), brushReplaceCheckbox.checked());
+					world.addPlaceable(
+						new PLACEABLE_TYPES[action](x, y, world),
+						brushReplaceCheckbox.checked());
 				}
 			}
 		}

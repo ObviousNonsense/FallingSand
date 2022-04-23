@@ -6,7 +6,7 @@ class World {
     reset(gridWidth, gridHeight) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
-        this.particleSet = new Set();
+        this.placeableSet = new Set();
         this.initializeEmptyGrids();
     }
 
@@ -41,16 +41,38 @@ class World {
         return this.particleGrid[x][y];
     }
 
+    getPlaceable(x, y) {
+        if (this.zoneGrid[x][y]) {
+            return this.zoneGrid[x][y];
+        }
+        else {
+            return this.getParticle(x, y);
+        }
+    }
+
     /**
     * @param {Placeable} p
     */
-    addPlaceable(p) {
+    addPlaceable(p, replace = false) {
         if (p instanceof Particle) {
-            this.addParticle(p);
+            this.addParticle(p, replace);
         }
         else if (p instanceof Zone) {
-            this.zoneGrid[p.x][p.y] = p;
+            this.addZone(p, replace);
         }
+    }
+
+    addZone(p, replace = false) {
+        if (this.zoneGrid[p.x][p.y]) {
+            if (replace) {
+                this.placeableSet.delete(this.zoneGrid[p.x][p.y]);
+            }
+            else {
+                return;
+            }
+        }
+        this.zoneGrid[p.x][p.y] = p;
+        this.placeableSet.add(p);
     }
 
     /**
@@ -59,23 +81,24 @@ class World {
     addParticle(p, replace = false) {
         if (this.getParticle(p.x, p.y)) {
             if (replace) {
-                this.particleSet.delete(this.getParticle(p.x, p.y));
+                this.placeableSet.delete(this.getParticle(p.x, p.y));
             }
             else {
                 return;
             }
         }
         this.particleGrid[p.x][p.y] = p;
-        this.particleSet.add(p);
+        this.placeableSet.add(p);
     }
 
     /**
-    * @param {Particle} p
+    * @param {Placeable} p
     */
-    deleteParticle(p) {
+    deletePlaceable(p) {
         this.particleGrid[p.x][p.y] = false;
         this.redrawGrid[p.x][p.y] = true;
-        this.particleSet.delete(p);
+        this.zoneGrid[p.x][p.y] = false;
+        this.placeableSet.delete(p);
     }
 
     /**
@@ -89,21 +112,23 @@ class World {
         this.particleGrid[newX][newY] = p;
     }
 
-    updateAllParticles() {
-        for (let p of this.particleSet) {
+    updateAll() {
+        for (let p of this.placeableSet) {
             p.update();
         }
     }
 
-    showAllParticles(ctx, pixelsPerParticle) {
+    showAll(ctx, pixelsPerParticle) {
         // for (let p of this.particleSet) {
         //     p.show(ctx, pixelsPerParticle);
         // }
         for (let x = 0; x < this.gridWidth; x++) {
             for (let y = 0; y < this.gridHeight; y++) {
+                let drawn = false;
                 let p = this.particleGrid[x][y];
                 if (p) {
-                    this.particleGrid[x][y].show(ctx, pixelsPerParticle);
+                    drawn = p.need_to_show;
+                    p.show(ctx, pixelsPerParticle);
                 }
                 else if (this.redrawGrid[x][y]) {
                     ctx.fillStyle = '#333333';
@@ -112,6 +137,12 @@ class World {
                         pixelsPerParticle,
                         pixelsPerParticle);
                     this.redrawGrid[x][y] = false;
+                    drawn = true;
+                }
+
+                let z = this.zoneGrid[x][y];
+                if (z) {
+                    z.show(ctx, pixelsPerParticle, drawn);
                 }
             }
         }
