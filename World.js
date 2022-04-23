@@ -34,6 +34,10 @@ class World {
         }
     }
 
+    getParticle(x, y) {
+        return this.grid[x][y];
+    }
+
     /**
     * @param {Particle} p
     */
@@ -64,9 +68,11 @@ class World {
     /**
     * @param {Particle} p
     */
-    moveParticleInGrid(p, newX, newY) {
-        this.grid[p.x][p.y] = false;
-        this.redrawGrid[p.x][p.y] = true;
+    moveParticleInGrid(p, newX, newY, deleteOldSpace = true) {
+        if (deleteOldSpace) {
+            this.grid[p.x][p.y] = false;
+            this.redrawGrid[p.x][p.y] = true;
+        }
         this.grid[newX][newY] = p;
     }
 

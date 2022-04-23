@@ -122,7 +122,7 @@ class Particle {
             let d = neighbourList[i];
             let xn = this.x + d[0];
             let yn = this.y + d[1];
-            let neighbour = this.world.grid[xn][yn];
+            let neighbour = this.world.getParticle(xn, yn);
             if (neighbour.flammability > 0 && !neighbour.burning) {
                 if (neighbour.flammability * (1 - 0.5 * d[1]) > random()) {
                     neighbour.burning = true;
@@ -130,8 +130,8 @@ class Particle {
             }
             else if (!neighbour && this.fuel > 0) {
                 if (d[1] < 1
-                    && this.world.grid[this.x - 1][this.y].burning
-                    && this.world.grid[this.x + 1][this.y].burning
+                    && this.world.getParticle(this.x - 1, this.y).burning
+                    && this.world.getParticle(this.x + 1, this.y).burning
                 ) {
                     this.world.addParticle(
                         new FlameParticle(xn, yn, this.world,
@@ -177,7 +177,7 @@ class ParticleSink extends Particle {
     update() {
         // Selects a random adjacent space. If there is a particle there, delete it.
         let d = random(this.neighbourList);
-        let neighbour = this.world.grid[this.x + d[0]][this.y + d[1]];
+        let neighbour = this.world.getParticle(this.x + d[0], this.y + d[1]);
         if (neighbour && !neighbour.indestructible) {
             neighbour.delete();
         }
@@ -241,7 +241,7 @@ class ParticleSource extends Particle {
         let d = random(this.neighbourList);
         let xn = this.x + d[0];
         let yn = this.y + d[1];
-        let neighbour = this.world.grid[xn][yn];
+        let neighbour = this.world.getParticle(xn, yn);
         if (!neighbour) {
             this.world.addParticle(new this.particleType(xn, yn, this.world));
         }
@@ -328,7 +328,7 @@ class PlantParticle extends Particle {
         let d = random(this.neighbourList.slice(0, 4));
         let xn = this.x + d[0];
         let yn = this.y + d[1];
-        let neighbour = this.world.grid[xn][yn];
+        let neighbour = this.world.getParticle(xn, yn);
         if (this.watered) {
             if (!neighbour) {
                 // Check if the empty space I want to grow into doesn't have too
@@ -338,7 +338,7 @@ class PlantParticle extends Particle {
                     let dn = this.neighbourList[i];
                     let xnn = xn + dn[0];
                     let ynn = yn + dn[1];
-                    if (this.world.grid[xnn][ynn] instanceof PlantParticle) {
+                    if (this.world.getParticle(xnn, ynn) instanceof PlantParticle) {
                         count++;
                     }
                 }
@@ -390,7 +390,7 @@ class MoveableParticle extends Particle {
         // Do we move up or down in empty space?
         let rises = this.weight < AIR_WEIGHT;
 
-        let p = this.world.grid[x][y];
+        let p = this.world.getParticle(x, y);
         // Move to the given position if it's empty.
         if (!p) {
             if (
@@ -430,13 +430,10 @@ class MoveableParticle extends Particle {
         this.world.moveParticleInGrid(this, x, y);
         this.x = x;
         this.y = y;
-        // this.need_to_show = true;
     }
 
     displaceParticle(otherParticle, rises) {
         // Move another particle so we can take its spot
-        let tempX = otherParticle.x;
-        let tempY = otherParticle.y;
         let dir = (rises) ? -1 : +1;
 
         // Positions relative to the other particle to try moving it to
@@ -455,24 +452,27 @@ class MoveableParticle extends Particle {
                 otherParticle.x + p[0],
                 otherParticle.y + p[1],
                 false
-            );
-            if (moved) {
-                break;
+                );
+                if (moved) {
+                    break;
+                }
             }
-        }
+
+        let otherX = otherParticle.x;
+        let otherY = otherParticle.y;
 
         if (moved) {
             // If we got the other particle to move, then we can take its spot.
-            this.moveToGridPosition(tempX, tempY);
+            this.moveToGridPosition(otherX, otherY);
         }
         else {
             // Worst case we put the other particle in our position and then move to
             // its position
-            // TEMP: Probably add a swapParticles method in World
             otherParticle.moveToGridPosition(this.x, this.y);
-            this.x = tempX;
-            this.y = tempY;
-            this.world.grid[tempX][tempY] = this;
+            // this.world.grid[tempX][tempY] = this;
+            this.world.moveParticleInGrid(this, otherX, otherY, false);
+            this.x = otherX;
+            this.y = otherY;
         }
 
         otherParticle.hasBeenDisplaced = true;

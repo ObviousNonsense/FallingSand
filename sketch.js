@@ -274,7 +274,7 @@ handleMouseClick = function () {
 				for (j = imin; j < imin + brushSize; j++) {
 					let iy = y + j;
 					if (ix <= world.gridWidth - 2 && ix >= 1 && iy <= world.gridHeight - 2 && iy >= 1) {
-						let p = world.grid[ix][iy];
+						let p = world.getParticle(ix, iy);
 						let action = radio.value();
 						if (p) {
 							if (action === 'Delete') {
@@ -307,7 +307,7 @@ randomFill = function () {
 				let xnorm = map(x, 1, world.gridWidth - 1, -map_value, map_value);
 				let ynorm = map(y, 1, world.gridHeight - 1, -map_value, map_value);
 				if (simplex.noise2D(xnorm, ynorm) > randomThresholdSlider.value()) {
-					let p = world.grid[x][y];
+					let p = world.getParticle(x, y);
 					if (p) {
 						if (brushReplaceCheckbox.checked()) {
 							world.replaceParticle(p, new PARTICLE_TYPES[action](x, y, world));
