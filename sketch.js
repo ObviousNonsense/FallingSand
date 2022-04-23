@@ -29,7 +29,7 @@ let brushReplaceCheckbox;
 
 const AIR_WEIGHT = 1;
 
-const PARTICLE_TYPES = {
+const PLACEABLE_TYPES = {
 	'Stone Wall': WallParticle,
 	'Wood Wall': WoodParticle,
 	'Sand': SandParticle,
@@ -74,7 +74,7 @@ function setup() {
 	radio = createRadio(document.getElementById('particle-selector'));
 	radio.parent('gui-div');
 
-	for (let p in PARTICLE_TYPES) {
+	for (let p in PLACEABLE_TYPES) {
 		let option = document.createElement('input');
 		option.type = 'radio';
 		option.id = p;
@@ -281,11 +281,11 @@ handleMouseClick = function () {
 								world.deleteParticle(p);
 							}
 							else if (brushReplaceCheckbox.checked()) {
-								world.replaceParticle(p, new PARTICLE_TYPES[action](ix, iy, world));
+								world.replaceParticle(p, new PLACEABLE_TYPES[action](ix, iy, world));
 							}
 						}
 						else if (action != 'Delete') {
-							world.addParticle(new PARTICLE_TYPES[action](ix, iy, world));
+							world.addParticle(new PLACEABLE_TYPES[action](ix, iy, world));
 						}
 					}
 				}
@@ -310,11 +310,11 @@ randomFill = function () {
 					let p = world.getParticle(x, y);
 					if (p) {
 						if (brushReplaceCheckbox.checked()) {
-							world.replaceParticle(p, new PARTICLE_TYPES[action](x, y, world));
+							world.replaceParticle(p, new PLACEABLE_TYPES[action](x, y, world));
 						}
 					}
 					else {
-						world.addParticle(new PARTICLE_TYPES[action](x, y, world));
+						world.addParticle(new PLACEABLE_TYPES[action](x, y, world));
 					}
 				}
 			}

@@ -1,4 +1,4 @@
-class Particle {
+class Particle extends Placeable{
 
     static BASE_COLOR = '#FFFFFF';
     static BURNING_COLOR = '#E65C00';
@@ -7,9 +7,7 @@ class Particle {
     * @param {World} world
     */
     constructor(x, y, world) {
-        this.x = x;
-        this.y = y;
-        this.world = world;
+        super(x, y, world);
 
         let c = this.constructor.BASE_COLOR;
         this.color = adjustHSBofString(c, 1, random(0.95, 1.05), random(0.95, 1.05));
@@ -47,65 +45,12 @@ class Particle {
         return this._burning;
     }
 
-    /**
-     * @param {Color} c
-     */
-    set color(c) {
-        this._color = c;
-        this.need_to_show = true;
-    }
-
-    get color() {
-        return this._color;
-    }
-
-    /**
-     * @param {int} val
-     */
-    set x(val) {
-        this._x = val;
-        this.need_to_show = true;
-    }
-
-    get x() {
-        return this._x;
-    }
-
-    /**
-     * @param {int} val
-     */
-     set y(val) {
-        this._y = val;
-        this.need_to_show = true;
-    }
-
-    get y() {
-        return this._y;
-    }
-
-    show(ctx, pixelsPerParticle) {
-        if (this.need_to_show) {
-            // Using native javascript for drawing on the canvas is faster than
-            // using p5's methods
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x * pixelsPerParticle,
-                this.y * pixelsPerParticle,
-                pixelsPerParticle,
-                pixelsPerParticle);
-            this.need_to_show = false;
-        }
-    }
-
     update() {
         if (this.burning) {
             this.burn();
         }
 
-        return false;
-    }
-
-    delete() {
-        this.world.deleteParticle(this);
+        return super.update();
     }
 
     burn() {
@@ -159,34 +104,6 @@ class Particle {
 }
 
 
-class ParticleSink extends Particle {
-
-    static BASE_COLOR = '#000000';
-
-    constructor(x, y, world) {
-        super(x, y, world);
-        this.indestructible = true;
-        this.neighbourList = [
-            [0, -1],
-            [0, +1],
-            [+1, 0],
-            [-1, 0]
-        ]
-    }
-
-    update() {
-        // Selects a random adjacent space. If there is a particle there, delete it.
-        let d = random(this.neighbourList);
-        let neighbour = this.world.getParticle(this.x + d[0], this.y + d[1]);
-        if (neighbour && !neighbour.indestructible) {
-            neighbour.delete();
-        }
-
-        super.update();
-    }
-}
-
-
 class WallParticle extends Particle {
 
     static BASE_COLOR = '#626770';
@@ -218,35 +135,6 @@ class IndestructibleWallParticle extends WallParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.indestructible = true;
-    }
-}
-
-
-class ParticleSource extends Particle {
-
-    constructor(x, y, world, sourceType) {
-        super(x, y, world);
-        this.particleType = sourceType;
-        this.neighbourList = [
-            [0, -1],
-            [0, +1],
-            [+1, 0],
-            [-1, 0]
-        ]
-    }
-
-    update() {
-        // Pick a random adjacent space. If it's empty create the given type of
-        // particle there.
-        let d = random(this.neighbourList);
-        let xn = this.x + d[0];
-        let yn = this.y + d[1];
-        let neighbour = this.world.getParticle(xn, yn);
-        if (!neighbour) {
-            this.world.addParticle(new this.particleType(xn, yn, this.world));
-        }
-
-        super.update();
     }
 }
 

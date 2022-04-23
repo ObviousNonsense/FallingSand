@@ -11,15 +11,15 @@ class World {
     }
 
     initializeEmptyGrid() {
-        this.grid = [];
+        this.particleGrid = [];
         this.redrawGrid = []
         for (let x = 0; x < this.gridWidth; x++) {
-            this.grid[x] = [];
+            this.particleGrid[x] = [];
             this.redrawGrid[x] = [];
             for (let y = 0; y < this.gridHeight; y++) {
 
                 // Initialize most grid positions to false
-                this.grid[x][y] = false;
+                this.particleGrid[x][y] = false;
                 this.redrawGrid[x][y] = true;
 
                 // Initialize boundaries to indestructible walls so I don't ever
@@ -35,14 +35,14 @@ class World {
     }
 
     getParticle(x, y) {
-        return this.grid[x][y];
+        return this.particleGrid[x][y];
     }
 
     /**
     * @param {Particle} p
     */
     addParticle(p) {
-        this.grid[p.x][p.y] = p;
+        this.particleGrid[p.x][p.y] = p;
         this.particleSet.add(p);
     }
 
@@ -50,7 +50,7 @@ class World {
     * @param {Particle} p
     */
     deleteParticle(p) {
-        this.grid[p.x][p.y] = false;
+        this.particleGrid[p.x][p.y] = false;
         this.redrawGrid[p.x][p.y] = true;
         this.particleSet.delete(p);
     }
@@ -60,7 +60,7 @@ class World {
     * @param {Particle} newP
     */
     replaceParticle(oldP, newP) {
-        this.grid[oldP.x][oldP.y] = newP;
+        this.particleGrid[oldP.x][oldP.y] = newP;
         this.particleSet.delete(oldP);
         this.particleSet.add(newP);
     }
@@ -70,10 +70,10 @@ class World {
     */
     moveParticleInGrid(p, newX, newY, deleteOldSpace = true) {
         if (deleteOldSpace) {
-            this.grid[p.x][p.y] = false;
+            this.particleGrid[p.x][p.y] = false;
             this.redrawGrid[p.x][p.y] = true;
         }
-        this.grid[newX][newY] = p;
+        this.particleGrid[newX][newY] = p;
     }
 
     updateAllParticles() {
@@ -88,9 +88,9 @@ class World {
         // }
         for (let x = 0; x < this.gridWidth; x++) {
             for (let y = 0; y < this.gridHeight; y++) {
-                let p = this.grid[x][y];
+                let p = this.particleGrid[x][y];
                 if (p) {
-                    this.grid[x][y].show(ctx, pixelsPerParticle);
+                    this.particleGrid[x][y].show(ctx, pixelsPerParticle);
                 }
                 else if (this.redrawGrid[x][y]) {
                     ctx.fillStyle = '#333333';
