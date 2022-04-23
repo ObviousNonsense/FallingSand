@@ -8,6 +8,8 @@ class ParticleSink extends Zone {
     constructor(x, y, world) {
         super(x, y, world);
         this.indestructible = true;
+        this.color = color(this.constructor.BASE_COLOR);
+        this.color.setAlpha(0.25);
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -34,6 +36,8 @@ class ParticleSource extends Zone {
     constructor(x, y, world, sourceType) {
         super(x, y, world);
         this.particleType = sourceType;
+        this.color = color(sourceType.BASE_COLOR);
+        this.color.setAlpha(0.25);
         this.neighbourList = [
             [0, -1],
             [0, +1],

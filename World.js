@@ -7,20 +7,23 @@ class World {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.particleSet = new Set();
-        this.initializeEmptyGrid();
+        this.initializeEmptyGrids();
     }
 
-    initializeEmptyGrid() {
+    initializeEmptyGrids() {
         this.particleGrid = [];
-        this.redrawGrid = []
+        this.redrawGrid = [];
+        this.zoneGrid = [];
         for (let x = 0; x < this.gridWidth; x++) {
             this.particleGrid[x] = [];
             this.redrawGrid[x] = [];
+            this.zoneGrid[x] = [];
             for (let y = 0; y < this.gridHeight; y++) {
 
                 // Initialize most grid positions to false
                 this.particleGrid[x][y] = false;
                 this.redrawGrid[x][y] = true;
+                this.zoneGrid[x][y] = false;
 
                 // Initialize boundaries to indestructible walls so I don't ever
                 // have to check if we're looking outside the array bounds
@@ -39,9 +42,29 @@ class World {
     }
 
     /**
+    * @param {Placeable} p
+    */
+    addPlaceable(p) {
+        if (p instanceof Particle) {
+            this.addParticle(p);
+        }
+        else if (p instanceof Zone) {
+            this.zoneGrid[p.x][p.y] = p;
+        }
+    }
+
+    /**
     * @param {Particle} p
     */
-    addParticle(p) {
+    addParticle(p, replace = false) {
+        if (this.getParticle(p.x, p.y)) {
+            if (replace) {
+                this.particleSet.delete(this.getParticle(p.x, p.y));
+            }
+            else {
+                return;
+            }
+        }
         this.particleGrid[p.x][p.y] = p;
         this.particleSet.add(p);
     }
@@ -53,16 +76,6 @@ class World {
         this.particleGrid[p.x][p.y] = false;
         this.redrawGrid[p.x][p.y] = true;
         this.particleSet.delete(p);
-    }
-
-    /**
-    * @param {Particle} oldP
-    * @param {Particle} newP
-    */
-    replaceParticle(oldP, newP) {
-        this.particleGrid[oldP.x][oldP.y] = newP;
-        this.particleSet.delete(oldP);
-        this.particleSet.add(newP);
     }
 
     /**

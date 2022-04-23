@@ -274,18 +274,15 @@ handleMouseClick = function () {
 				for (j = imin; j < imin + brushSize; j++) {
 					let iy = y + j;
 					if (ix <= world.gridWidth - 2 && ix >= 1 && iy <= world.gridHeight - 2 && iy >= 1) {
-						let p = world.getParticle(ix, iy);
 						let action = radio.value();
-						if (p) {
-							if (action === 'Delete') {
+						if (action === 'Delete') {
+							let p = world.getParticle(ix, iy);
+							if (p) {
 								world.deleteParticle(p);
 							}
-							else if (brushReplaceCheckbox.checked()) {
-								world.replaceParticle(p, new PLACEABLE_TYPES[action](ix, iy, world));
-							}
 						}
-						else if (action != 'Delete') {
-							world.addParticle(new PLACEABLE_TYPES[action](ix, iy, world));
+						else {
+							world.addParticle(new PLACEABLE_TYPES[action](ix, iy, world), brushReplaceCheckbox.checked());
 						}
 					}
 				}
@@ -307,15 +304,7 @@ randomFill = function () {
 				let xnorm = map(x, 1, world.gridWidth - 1, -map_value, map_value);
 				let ynorm = map(y, 1, world.gridHeight - 1, -map_value, map_value);
 				if (simplex.noise2D(xnorm, ynorm) > randomThresholdSlider.value()) {
-					let p = world.getParticle(x, y);
-					if (p) {
-						if (brushReplaceCheckbox.checked()) {
-							world.replaceParticle(p, new PLACEABLE_TYPES[action](x, y, world));
-						}
-					}
-					else {
-						world.addParticle(new PLACEABLE_TYPES[action](x, y, world));
-					}
+					world.addParticle(new PLACEABLE_TYPES[action](x, y, world), brushReplaceCheckbox.checked());
 				}
 			}
 		}

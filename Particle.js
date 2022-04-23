@@ -477,7 +477,7 @@ class WaterParticle extends FluidParticle {
     }
 
     evaporate() {
-        this.world.replaceParticle(this, new SteamParticle(this.x, this.y, this.world));
+        this.world.addParticle(new SteamParticle(this.x, this.y, this.world), true);
     }
 }
 
@@ -510,7 +510,7 @@ class SteamParticle extends FluidParticle {
     }
 
     condensate() {
-        this.world.replaceParticle(this, new WaterParticle(this.x, this.y, this.world))
+        this.world.addParticle(new WaterParticle(this.x, this.y, this.world), true);
     }
 }
 
