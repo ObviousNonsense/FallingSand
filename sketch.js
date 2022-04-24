@@ -30,7 +30,11 @@ let brushReplaceCheckbox;
 let drawParticles = false;
 let drawTemperature = true;
 
+let temperatureUpdateResolution = 8;
+
 const AIR_WEIGHT = 1;
+const MAX_TEMP = 1000;
+const MIN_TEMP = -100;
 const ROOM_TEMP = 25;
 const INITIAL_TEMPERATURE = 25;
 const BACKGROUND_COLOR = '#333333'
@@ -212,6 +216,7 @@ function setup() {
 
 function draw() {
 	frameRate(frSlider.value())
+	// frameRate(2);
 
 	brushSizeDisplay.html('Brush Size: ' + brushSizeSlider.value());
 	handleMouseClick();
