@@ -27,6 +27,8 @@ let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
 
+let action = 'Sand';
+
 const AIR_WEIGHT = 1;
 
 const PLACEABLE_TYPES = {
@@ -70,25 +72,32 @@ function setup() {
 	let canvas = document.getElementById('defaultCanvas0');
 	canvasContext = canvas.getContext('2d');
 
-	// Radio buttons for selecting particle type to draw
-	radio = createRadio(document.getElementById('particle-selector'));
-	radio.parent('gui-div');
 
-	for (let p in PLACEABLE_TYPES) {
-		let option = document.createElement('input');
-		option.type = 'radio';
-		option.id = p;
-		option.value = p;
-		radio.child(option);
+    settings = QuickSettings.create(0, 0, 'Settings')
+		.addDropDown('Select: ', Object.keys(PLACEABLE_TYPES), function(s) {action = s.value})
 
-		let optionLabel = document.createElement('label');
-		optionLabel.htmlFor = p;
-		radio.child(optionLabel);
+	// let styleTag = document.getElementById("qs_styles");
+	// styleTag.href = "quicksettings_black.css";
 
-		radio.option(p);
-	}
-	radio.option('Delete');
-	radio.selected('Sand');
+	// // Radio buttons for selecting particle type to draw
+	// radio = createRadio(document.getElementById('particle-selector'));
+	// radio.parent('gui-div');
+
+	// for (let p in PLACEABLE_TYPES) {
+	// 	let option = document.createElement('input');
+	// 	option.type = 'radio';
+	// 	option.id = p;
+	// 	option.value = p;
+	// 	radio.child(option);
+
+	// 	let optionLabel = document.createElement('label');
+	// 	optionLabel.htmlFor = p;
+	// 	radio.child(optionLabel);
+
+	// 	radio.option(p);
+	// }
+	// radio.option('Delete');
+	// radio.selected('Sand');
 
 	// Other Various UI elements:
 	let brushDiv = createDiv();
@@ -274,7 +283,7 @@ handleMouseClick = function () {
 				for (j = imin; j < imin + brushSize; j++) {
 					let iy = y + j;
 					if (ix <= world.gridWidth - 2 && ix >= 1 && iy <= world.gridHeight - 2 && iy >= 1) {
-						let action = radio.value();
+						// let action = radio.value();
 						if (action === 'Delete') {
 							let p = world.getPlaceable(ix, iy);
 							if (p) {
