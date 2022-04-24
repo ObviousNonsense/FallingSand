@@ -14,16 +14,20 @@ class World {
         this.particleGrid = [];
         this.redrawGrid = [];
         this.zoneGrid = [];
+        this.temperatureGrid = [];
         for (let x = 0; x < this.gridWidth; x++) {
             this.particleGrid[x] = [];
             this.redrawGrid[x] = [];
             this.zoneGrid[x] = [];
+            this.temperatureGrid[x] = [];
             for (let y = 0; y < this.gridHeight; y++) {
 
                 // Initialize most grid positions to false
                 this.particleGrid[x][y] = false;
                 this.redrawGrid[x][y] = true;
                 this.zoneGrid[x][y] = false;
+                // this.temperatureGrid[x][y] = INITIAL_TEMPERATURE;
+                this.temperatureGrid[x][y] = map(x, 0, this.gridWidth, -100, 1000);
 
                 // Initialize boundaries to indestructible walls so I don't ever
                 // have to check if we're looking outside the array bounds
@@ -35,6 +39,7 @@ class World {
                 }
             }
         }
+
     }
 
     getParticle(x, y) {
@@ -122,7 +127,13 @@ class World {
         }
     }
 
-    showAll(ctx, pixelsPerParticle) {
+    forceShowAllPlaceables() {
+        for (let p of this.placeableSet) {
+            p.need_to_show = true;
+        }
+    }
+
+    showAllPlaceables(ctx, pixelsPerParticle) {
         // for (let p of this.particleSet) {
         //     p.show(ctx, pixelsPerParticle);
         // }
@@ -135,7 +146,7 @@ class World {
                     p.show(ctx, pixelsPerParticle);
                 }
                 else if (this.redrawGrid[x][y]) {
-                    ctx.fillStyle = '#333333';
+                    ctx.fillStyle = BACKGROUND_COLOR;
                     ctx.fillRect(x * pixelsPerParticle,
                         y * pixelsPerParticle,
                         pixelsPerParticle,
@@ -148,6 +159,36 @@ class World {
                 if (z) {
                     z.show(ctx, pixelsPerParticle, drawn);
                 }
+            }
+        }
+    }
+
+    showTemperature(ctx, pixelsPerParticle) {
+        for (let x = 0; x < this.gridWidth; x++) {
+            for (let y = 0; y < this.gridHeight; y++) {
+                let t = this.temperatureGrid[x][y];
+                let r = 0;
+                let g = 0;
+                let b = 0;
+                if (t <= ROOM_TEMP) {
+                    r = map(t, -100, ROOM_TEMP, 0, 127);
+                    g = map(t, -100, ROOM_TEMP, 0, 127);
+                    b = map(t, -100, ROOM_TEMP, 255, 128);
+                }
+                else {
+                    r = map(t, ROOM_TEMP, 1000, 128, 255);
+                    g = map(t, ROOM_TEMP, 1000, 127, 0);
+                    b = map(t, ROOM_TEMP, 1000, 128, 0);
+                }
+                // if (x === 0 && y === 0) {
+                //     console.log(b);
+                // }
+                colorMode(RGB);
+                ctx.fillStyle = color(r, g, b);
+                ctx.fillRect(x * pixelsPerParticle,
+                    y * pixelsPerParticle,
+                    pixelsPerParticle,
+                    pixelsPerParticle);
             }
         }
     }

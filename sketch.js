@@ -27,7 +27,13 @@ let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
 
+let drawParticles = false;
+let drawTemperature = true;
+
 const AIR_WEIGHT = 1;
+const ROOM_TEMP = 25;
+const INITIAL_TEMPERATURE = 25;
+const BACKGROUND_COLOR = '#333333'
 
 const PLACEABLE_TYPES = {
 	'Stone Wall': WallParticle,
@@ -214,14 +220,31 @@ function draw() {
 	}
 
 	canvasContext.save()
-	// background('#333333');
-	// Separate loop for showing because sometimes particles will be moved by others after they update
-	world.showAll(canvasContext, pixelsPerParticle);
+	if (drawParticles) {
+		world.showAllPlaceables(canvasContext, pixelsPerParticle);
+	}
+	else if (drawTemperature) {
+		world.showTemperature(canvasContext, pixelsPerParticle);
+	}
+	else {
+		background(BACKGROUND_COLOR);
+	}
 	canvasContext.restore();
 
 	frDisplay.html('Average FPS: ' + floor(averageFrameRate()));
 	numParticleDisplay.html('Number of Particles: ' + world.placeableSet.size);
 	// noLoop();
+}
+
+
+function toggleDrawParticles() {
+	if (drawParticles) {
+		drawParticles = false;
+	}
+	else {
+		drawParticles = true;
+		world.forceShowAllPlaceables();
+	}
 }
 
 
