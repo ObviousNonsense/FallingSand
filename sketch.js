@@ -30,9 +30,10 @@ let brushReplaceCheckbox;
 let drawParticles = false;
 let drawTemperature = true;
 
-let temperatureUpdateResolution = 8;
+let temperatureUpdateResolution = 13;
 
 const AIR_WEIGHT = 1;
+const AIR_HEAT_COND = 0.2;
 const MAX_TEMP = 1000;
 const MIN_TEMP = -100;
 const ROOM_TEMP = 25;

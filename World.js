@@ -28,8 +28,10 @@ class World {
                 this.redrawGrid[x][y] = true;
                 this.zoneGrid[x][y] = false;
                 // this.temperatureGrid[x][y] = INITIAL_TEMPERATURE;
-                // this.temperatureGrid[x][y] = map(y, 0, this.gridWidth, -100, 1000);
-                this.temperatureGrid[x][y] = map(random(), 0, 1, -100, 100);
+                // this.temperatureGrid[x][y] = map(x, 0, this.gridWidth, -100, 100);
+                // this.temperatureGrid[x][y] = map(random(), 0, 1, -100, 100);
+                this.temperatureGrid[x][y] = x < 50 ? -100 : 1000;
+
 
                 // Initialize boundaries to indestructible walls so I don't ever
                 // have to check if we're looking outside the array bounds
@@ -203,9 +205,12 @@ class World {
     updateTemperature() {
         for (let x = 0; x < this.gridWidth; x++) {
             for (let y = 0; y < this.gridHeight; y++) {
-                if (((x * this.gridWidth + y + this.tempUpdateOffset) % temperatureUpdateResolution) === 0) {
-                    let sum = this.temperatureGrid[x][y];
-                    let count = 1;
+                // if (this.particleGrid[x][y]) {
+                    //this.particleGrid[x][y].updateTemperature();
+                // }
+                // else {
+                    let sum = 0;
+                    let count = 0;
                     for (let dx = -1; dx < 2; dx++) {
                         for (let dy = -1; dy < 2; dy++) {
                             if (x + dx < this.gridWidth
@@ -213,12 +218,15 @@ class World {
                                 && y + dy < this.gridHeight
                                 && y + dy >= 0) {
 
-                                sum += this.temperatureGrid[x + dx][y + dy];
-                                count++;
+                                    sum += AIR_HEAT_COND * (
+                                        this.temperatureGrid[x + dx][y + dy] - this.temperatureGrid[x][y]);
+                                    count++;
+                                }
                             }
                         }
-                    }
-                    this.temperatureGrid[x][y] = sum / count;
+                        this.temperatureGrid[x][y] += sum / count;
+                // }
+                if (((x * this.gridWidth + y + this.tempUpdateOffset) % temperatureUpdateResolution) === 0) {
                     this.redrawGrid[x][y] = true;
                 }
             }

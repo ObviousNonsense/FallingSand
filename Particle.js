@@ -17,6 +17,8 @@ class Particle extends Placeable{
         this.fuel = Infinity;
         this.originalFuel = 0;
         this._burning = false;
+
+        this.heatConductivity = 1;
     }
 
     /**
