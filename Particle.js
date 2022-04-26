@@ -82,15 +82,20 @@ class Particle extends Placeable{
                 ) {
                     this.world.addParticle(
                         new FlameParticle(xn, yn, this.world,
-                            random([...Array(this.fuel).keys()]))
+                            random([...Array(this.fuel).keys()]),
+                            this.burningHeat)
                     );
                 }
             }
-            else if (neighbour instanceof WaterParticle) {
-                neighbour.evaporate();
-                this.burning = false;
-                break;
-            }
+            // else if (neighbour instanceof WaterParticle) {
+            //     neighbour.evaporate();
+            //     this.burning = false;
+            //     break;
+            // }
+            // if (this.world.getTemperature(this.x, this.y) < 50) {
+            //     this.burning = false;
+            //     break;
+            // }
         }
 
         this.fuel--;
@@ -115,6 +120,17 @@ class WallParticle extends Particle {
     }
 }
 
+class MetalParticle extends Particle {
+    static BASE_COLOR = '#616565';
+
+    constructor(x, y, world) {
+        super(x, y, world);
+        this.color = this.constructor.BASE_COLOR;
+        this.heatConductivity = 1;
+    }
+
+}
+
 
 class WoodParticle extends Particle {
     static BASE_COLOR = '#C17736'
@@ -122,12 +138,13 @@ class WoodParticle extends Particle {
     constructor(x, y, world) {
         super(x, y, world);
         this.flammability = 0.1;
+        this.burningHeat = 10;
         this.fuel = 200;
     }
 }
 
 
-class IndestructibleWallParticle extends WallParticle {
+class IndestructibleWallParticle extends Particle {
 
     static BASE_COLOR = '#6C727B';
 
@@ -145,17 +162,20 @@ class FlameParticle extends Particle {
     static BASE_COLOR = '#ff7700'
     static BURNING_COLOR = '#ff7700'
 
-    constructor(x, y, world, fuel = 0) {
+    constructor(x, y, world, fuel = 0, burningHeat = 10) {
         super(x, y, world);
         this.fuel = fuel;
         this.burning = true;
         this.fresh = true;
         this.color = this.constructor.BASE_COLOR;
+        this.burningHeat = burningHeat;
     }
 
     update() {
         // this.color = adjustHSBofString(this.constructor.BASE_COLOR,
         //     random(0.9, 1.1), random(0.95, 1.05), random(0.5, 1.5));
+
+        this.world.addHeat(this.x, this.y, this.burningHeat);
 
         if (!this.fresh) {
             super.update();
@@ -186,6 +206,7 @@ class PlantParticle extends Particle {
         this.color_dry = adjustHSBofString(this.color, 0.8, 1, 1);
         this.watered = false;
         this.fuel = 35;
+        this.burningHeat = 10;
         this.neighbourList = [
             [0, -1],
             [0, +1],
@@ -416,6 +437,7 @@ class GunpowderParticle extends SandParticle {
         super(x, y, world);
         this.flammability = 0.7;
         this.fuel = 25;
+        this.burningHeat = 20;
     }
 }
 
@@ -472,10 +494,24 @@ class WaterParticle extends FluidParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.weight = 60;
+        // this.weight = 60 - 0.5 * this.world.getTemperature(this.x, this.y);
+        this.heatConductivity = 0.2;
+        this.boilingPoint = 100;
+        this.latentHeatLimit = 10;
+        this.latentHeat = 0;
     }
 
     update() {
         super.update(true);
+        let temp = this.world.getTemperature(this.x, this.y);
+        if (temp >= this.boilingPoint) {
+            let extraHeat = temp - this.boilingPoint;
+            this.world.addHeat(this.x, this.y, -extraHeat);
+            this.latentHeat += extraHeat;
+            if (this.latentHeat >= this.latentHeatLimit){
+                this.evaporate();
+            }
+        }
     }
 
     evaporate() {
@@ -525,6 +561,7 @@ class HydrogenParticle extends FluidParticle {
         this.weight = 0.2;
         this.flammability = 0.95;
         this.fuel = 6;
+        this.burningHeat = 25;
     }
 
     update() {
@@ -540,6 +577,7 @@ class GasolineParticle extends FluidParticle {
         this.weight = 50;
         this.flammability = 0.95;
         this.fuel = 15;
+        this.burningHeat = 20;
     }
 
     update() {

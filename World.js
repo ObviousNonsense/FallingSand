@@ -27,10 +27,10 @@ class World {
                 this.particleGrid[x][y] = false;
                 this.redrawGrid[x][y] = true;
                 this.zoneGrid[x][y] = false;
-                // this.temperatureGrid[x][y] = INITIAL_TEMPERATURE;
+                this.temperatureGrid[x][y] = INITIAL_TEMPERATURE;
                 // this.temperatureGrid[x][y] = map(x, 0, this.gridWidth, -100, 1000);
                 // this.temperatureGrid[x][y] = map(random(), 0, 1, -100, 100);
-                this.temperatureGrid[x][y] = (x - y) < 10 ? -100 : 1000;
+                // this.temperatureGrid[x][y] = (x - y) < 10 ? -100 : 1000;
 
 
                 // Initialize boundaries to indestructible walls so I don't ever
@@ -57,6 +57,17 @@ class World {
         else {
             return this.getParticle(x, y);
         }
+    }
+
+    getTemperature(x, y) {
+        return this.temperatureGrid[x][y];
+    }
+
+    addHeat(x, y, deltaT) {
+        this.temperatureGrid[x][y] += deltaT;
+        this.temperatureGrid[x][y] = min(this.temperatureGrid[x][y], MAX_TEMP);
+        this.temperatureGrid[x][y] = max(this.temperatureGrid[x][y], MIN_TEMP);
+
     }
 
     /**
@@ -229,6 +240,8 @@ class World {
     updateTemperature() {
         for (let x = 0; x < this.gridWidth; x++) {
             for (let y = 0; y < this.gridHeight; y++) {
+                let thisParticle = this.particleGrid[x][y];
+                // let heatCond = thisParticle ? thisParticle.heatConductivity : AIR_HEAT_COND;
                 let sum = 0;
                 let count = 0;
                 for (let dx = -1; dx < 2; dx++) {
@@ -237,9 +250,10 @@ class World {
                         let insideY = y + dy < this.gridHeight && y + dy >= 0;
                         if (insideX && insideY) {
 
+                            let upBias = thisParticle ? 1 : 1 + 0.5 * dy;
                             let p = this.particleGrid[x + dx][y + dy];
                             let heatCond = p ? p.heatConductivity : AIR_HEAT_COND;
-                            sum += heatCond * (
+                            sum += upBias * heatCond * (
                                 this.temperatureGrid[x + dx][y + dy]
                                 - this.temperatureGrid[x][y]
                             );

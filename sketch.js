@@ -41,8 +41,9 @@ const INITIAL_TEMPERATURE = 25;
 const BACKGROUND_COLOR = '#333333'
 
 const PLACEABLE_TYPES = {
-	'Stone Wall': WallParticle,
-	'Wood Wall': WoodParticle,
+	'Stone': WallParticle,
+	'Wood': WoodParticle,
+	'Metal': MetalParticle,
 	'Sand': SandParticle,
 	'Water': WaterParticle,
 	'Steam': SteamParticle,
@@ -268,17 +269,6 @@ function draw() {
 	numParticleDisplay.html('Number of Particles: ' + world.placeableSet.size);
 	// noLoop();
 }
-
-
-// function toggleDrawParticles() {
-// 	if (drawParticles) {
-// 		drawParticles = false;
-// 	}
-// 	else {
-// 		drawParticles = true;
-// 		world.forceShowAllPlaceables();
-// 	}
-// }
 
 
 updateCanvasSize = function () {
