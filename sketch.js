@@ -33,7 +33,7 @@ let drewTemperatureLastFrame;
 let temperatureUpdateResolution = 13;
 
 const AIR_WEIGHT = 1;
-const AIR_HEAT_COND = 0.2;
+const AIR_HEAT_COND = 0.05;
 const MAX_TEMP = 1000;
 const MIN_TEMP = -100;
 const ROOM_TEMP = 25;

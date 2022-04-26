@@ -178,18 +178,34 @@ class World {
             for (let y = 0; y < this.gridHeight; y++) {
                 if (((x * this.gridWidth + y + this.tempUpdateOffset) % temperatureUpdateResolution) === 0) {
                     let t = this.temperatureGrid[x][y];
-                    let r = 0;
-                    let g = 0;
-                    let b = 0;
-                    if (t <= ROOM_TEMP) {
-                        r = map(t, MIN_TEMP, ROOM_TEMP, 0, 200);
-                        g = map(t, MIN_TEMP, ROOM_TEMP, 0, 200);
-                        b = map(t, MIN_TEMP, ROOM_TEMP, 255, 50);
+                    let [r, g, b] = [0, 0, 0];
+                    let [t0, t1, t2, t3, t4] = [MIN_TEMP, -50, ROOM_TEMP, 400, MAX_TEMP];
+                    let [c0, c1, c2, c3, c4] = [
+                        [0, 0, 61],
+                        [0, 35, 124],
+                        [59, 74, 194],
+                        [255, 107, 60],
+                        [255, 255, 0]
+                    ]
+
+                    function mapColors(t1, t2, c1, c2) {
+                        r = map(t, t1, t2, c1[0], c2[0]);
+                        g = map(t, t1, t2, c1[1], c2[1]);
+                        b = map(t, t1, t2, c1[2], c2[2]);
+                        return [r, g, b]
                     }
-                    else {
-                        r = map(t, ROOM_TEMP, MAX_TEMP, 200, 255);
-                        g = map(t, ROOM_TEMP, MAX_TEMP, 200, 0);
-                        b = map(t, ROOM_TEMP, MAX_TEMP, 50, 0);
+
+                    if (t <= t1) {
+                        [r, g, b] = mapColors(t0, t1, c0, c1)
+                    }
+                    else if (t > t1 && t <= t2) {
+                        [r, g, b] = mapColors(t1, t2, c1, c2)
+                    }
+                    else if (t > t2 && t <= t3) {
+                        [r, g, b] = mapColors(t2, t3, c2, c3)
+                    }
+                    else if (t > t3 && t <= t4) {
+                        [r, g, b] = mapColors(t3, t4, c3, c4)
                     }
                     colorMode(RGB);
                     ctx.fillStyle = color(r, g, b);
@@ -197,6 +213,7 @@ class World {
                         y * pixelsPerParticle,
                         pixelsPerParticle,
                         pixelsPerParticle);
+                    colorMode(HSB);
                 }
             }
         }
