@@ -18,7 +18,6 @@ class Particle extends Placeable{
         this.originalFuel = 0;
         this._burning = false;
 
-        this.temperature = x > 50 ? -100 : 1000;
         this.heatConductivity = 1;
     }
 
@@ -54,32 +53,6 @@ class Particle extends Placeable{
         }
 
         return super.update();
-    }
-
-    updateTemperature() {
-        let sum = 0;
-        let count = 0;
-        for (let dx = -1; dx < 2; dx++) {
-            for (let dy = -1; dy < 2; dy++) {
-                let x = this.x;
-                let y = this.y;
-                if (x + dx < this.world.gridWidth
-                    && x + dx >= 0
-                    && y + dy < this.world.gridHeight
-                    && y + dy >= 0) {
-
-                    let p = this.world.getParticle(x + dx, y + dy);
-                    if (p) {
-                        sum += p.heatConductivity * (
-                            p.temperature - this.temperature);
-                    }
-                        sum += AIR_HEAT_COND * (
-                            this.world.temperatureGrid[x + dx][y + dy] - this.temperature);
-                    count++;
-                }
-            }
-        }
-        this.temperature += sum / count;
     }
 
     burn() {

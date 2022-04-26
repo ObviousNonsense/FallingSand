@@ -123,6 +123,11 @@ class World {
             this.redrawGrid[p.x][p.y] = true;
         }
         this.particleGrid[newX][newY] = p;
+
+        // swap temperatures too
+        let temp = this.temperatureGrid[newX][newY];
+        this.temperatureGrid[newX][newY] = this.temperatureGrid[p.x][p.y];
+        this.temperatureGrid[p.x][p.y] = temp;
     }
 
     updateAll() {
@@ -173,9 +178,6 @@ class World {
             for (let y = 0; y < this.gridHeight; y++) {
                 if (((x * this.gridWidth + y + this.tempUpdateOffset) % temperatureUpdateResolution) === 0) {
                     let t = this.temperatureGrid[x][y];
-                    if (this.particleGrid[x][y]) {
-                        t = this.particleGrid[x][y].temperature;
-                    }
                     let r = 0;
                     let g = 0;
                     let b = 0;
@@ -208,37 +210,27 @@ class World {
     }
 
     updateTemperature() {
-        // TODO: make world alone track temperature, grab heat conductivity
-        // from particles, have temperature move when particles move (in
-        // moveParticles method)
         for (let x = 0; x < this.gridWidth; x++) {
             for (let y = 0; y < this.gridHeight; y++) {
-                if (this.particleGrid[x][y]) {
-                    this.particleGrid[x][y].updateTemperature();
-                }
-                else {
-                    let sum = 0;
-                    let count = 0;
-                    for (let dx = -1; dx < 2; dx++) {
-                        for (let dy = -1; dy < 2; dy++) {
-                            if (x + dx < this.gridWidth
-                                && x + dx >= 0
-                                && y + dy < this.gridHeight
-                                && y + dy >= 0) {
+                let sum = 0;
+                let count = 0;
+                for (let dx = -1; dx < 2; dx++) {
+                    for (let dy = -1; dy < 2; dy++) {
+                        let insideX = x + dx < this.gridWidth && x + dx >= 0;
+                        let insideY = y + dy < this.gridHeight && y + dy >= 0;
+                        if (insideX && insideY) {
 
-                                let p = this.particleGrid[x + dx][y + dy];
-                                if (p) {
-                                    sum += p.heatConductivity * (
-                                        p.temperature - this.temperatureGrid[x][y]);
-                                }
-                                    sum += AIR_HEAT_COND * (
-                                        this.temperatureGrid[x + dx][y + dy] - this.temperatureGrid[x][y]);
-                                count++;
-                            }
+                            let p = this.particleGrid[x + dx][y + dy];
+                            let heatCond = p ? p.heatConductivity : AIR_HEAT_COND;
+                            sum += heatCond * (
+                                this.temperatureGrid[x + dx][y + dy]
+                                - this.temperatureGrid[x][y]
+                            );
+                            count++;
                         }
                     }
-                    this.temperatureGrid[x][y] += sum / count;
                 }
+                this.temperatureGrid[x][y] += sum / count;
             }
         }
     }
