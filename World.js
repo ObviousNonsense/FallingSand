@@ -28,7 +28,7 @@ class World {
                 this.redrawGrid[x][y] = true;
                 this.zoneGrid[x][y] = false;
                 // this.temperatureGrid[x][y] = INITIAL_TEMPERATURE;
-                // this.temperatureGrid[x][y] = map(x, 0, this.gridWidth, -100, 100);
+                // this.temperatureGrid[x][y] = map(x, 0, this.gridWidth, -100, 1000);
                 // this.temperatureGrid[x][y] = map(random(), 0, 1, -100, 100);
                 this.temperatureGrid[x][y] = x < 50 ? -100 : 1000;
 
@@ -171,63 +171,30 @@ class World {
     showTemperature(ctx, pixelsPerParticle) {
         for (let x = 0; x < this.gridWidth; x++) {
             for (let y = 0; y < this.gridHeight; y++) {
-                if (this.redrawGrid[x][y]) {
+                if (((x * this.gridWidth + y + this.tempUpdateOffset) % temperatureUpdateResolution) === 0) {
                     let t = this.temperatureGrid[x][y];
+                    if (this.particleGrid[x][y]) {
+                        t = this.particleGrid[x][y].temperature;
+                    }
                     let r = 0;
                     let g = 0;
                     let b = 0;
                     if (t <= ROOM_TEMP) {
-                        r = map(t, MIN_TEMP, ROOM_TEMP, 0, 127);
-                        g = map(t, MIN_TEMP, ROOM_TEMP, 0, 127);
-                        b = map(t, MIN_TEMP, ROOM_TEMP, 255, 128);
+                        r = map(t, MIN_TEMP, ROOM_TEMP, 0, 200);
+                        g = map(t, MIN_TEMP, ROOM_TEMP, 0, 200);
+                        b = map(t, MIN_TEMP, ROOM_TEMP, 255, 50);
                     }
                     else {
-                        r = map(t, ROOM_TEMP, MAX_TEMP, 128, 255);
-                        g = map(t, ROOM_TEMP, MAX_TEMP, 127, 0);
-                        b = map(t, ROOM_TEMP, MAX_TEMP, 128, 0);
+                        r = map(t, ROOM_TEMP, MAX_TEMP, 200, 255);
+                        g = map(t, ROOM_TEMP, MAX_TEMP, 200, 0);
+                        b = map(t, ROOM_TEMP, MAX_TEMP, 50, 0);
                     }
-                    // if (x === 0 && y === 0) {
-                    //     console.log(b);
-                    // }
                     colorMode(RGB);
                     ctx.fillStyle = color(r, g, b);
                     ctx.fillRect(x * pixelsPerParticle,
                         y * pixelsPerParticle,
                         pixelsPerParticle,
                         pixelsPerParticle);
-
-                    this.redrawGrid[x][y] = false;
-                }
-            }
-        }
-    }
-
-    updateTemperature() {
-        for (let x = 0; x < this.gridWidth; x++) {
-            for (let y = 0; y < this.gridHeight; y++) {
-                // if (this.particleGrid[x][y]) {
-                    //this.particleGrid[x][y].updateTemperature();
-                // }
-                // else {
-                    let sum = 0;
-                    let count = 0;
-                    for (let dx = -1; dx < 2; dx++) {
-                        for (let dy = -1; dy < 2; dy++) {
-                            if (x + dx < this.gridWidth
-                                && x + dx >= 0
-                                && y + dy < this.gridHeight
-                                && y + dy >= 0) {
-
-                                    sum += AIR_HEAT_COND * (
-                                        this.temperatureGrid[x + dx][y + dy] - this.temperatureGrid[x][y]);
-                                    count++;
-                                }
-                            }
-                        }
-                        this.temperatureGrid[x][y] += sum / count;
-                // }
-                if (((x * this.gridWidth + y + this.tempUpdateOffset) % temperatureUpdateResolution) === 0) {
-                    this.redrawGrid[x][y] = true;
                 }
             }
         }
@@ -237,6 +204,42 @@ class World {
         }
         else {
             this.tempUpdateOffset++;
+        }
+    }
+
+    updateTemperature() {
+        // TODO: make world alone track temperature, grab heat conductivity
+        // from particles, have temperature move when particles move (in
+        // moveParticles method)
+        for (let x = 0; x < this.gridWidth; x++) {
+            for (let y = 0; y < this.gridHeight; y++) {
+                if (this.particleGrid[x][y]) {
+                    this.particleGrid[x][y].updateTemperature();
+                }
+                else {
+                    let sum = 0;
+                    let count = 0;
+                    for (let dx = -1; dx < 2; dx++) {
+                        for (let dy = -1; dy < 2; dy++) {
+                            if (x + dx < this.gridWidth
+                                && x + dx >= 0
+                                && y + dy < this.gridHeight
+                                && y + dy >= 0) {
+
+                                let p = this.particleGrid[x + dx][y + dy];
+                                if (p) {
+                                    sum += p.heatConductivity * (
+                                        p.temperature - this.temperatureGrid[x][y]);
+                                }
+                                    sum += AIR_HEAT_COND * (
+                                        this.temperatureGrid[x + dx][y + dy] - this.temperatureGrid[x][y]);
+                                count++;
+                            }
+                        }
+                    }
+                    this.temperatureGrid[x][y] += sum / count;
+                }
+            }
         }
     }
 }
