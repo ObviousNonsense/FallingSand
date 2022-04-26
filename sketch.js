@@ -26,9 +26,9 @@ let radio;
 let brushSizeSlider;
 let brushSizeDisplay;
 let brushReplaceCheckbox;
+let drawRadio;
 
-let drawParticles = false;
-let drawTemperature = true;
+let drewTemperatureLastFrame;
 
 let temperatureUpdateResolution = 13;
 
@@ -202,6 +202,27 @@ function setup() {
 		updateCanvasSize();
 	})
 
+	drawRadio = createRadio('draw-radio');
+	drawRadio.parent(scaleDiv);
+
+	function addDrawRadioOption(labelid) {
+		let option = document.createElement('input');
+		option.type = 'radio';
+		option.id = labelid;
+		option.value = labelid;
+		drawRadio.child(option);
+
+		let optionLabel = document.createElement('label');
+		optionLabel.htmlFor = labelid;
+		drawRadio.child(optionLabel);
+
+		drawRadio.option(labelid);
+	}
+
+	addDrawRadioOption('particles');
+	addDrawRadioOption('temperature');
+	drawRadio.selected('particles');
+
 	numParticleDisplay = createP('');
 	numParticleDisplay.parent('gui-div');
 
@@ -226,11 +247,17 @@ function draw() {
 	}
 
 	canvasContext.save()
-	if (drawParticles) {
+	if (drawRadio.value() == 'particles') {
+		if (drewTemperatureLastFrame) {
+			background(BACKGROUND_COLOR);
+			world.forceShowAllPlaceables();
+		}
 		world.showAllPlaceables(canvasContext, pixelsPerParticle);
+		drewTemperatureLastFrame = false;
 	}
-	else if (drawTemperature) {
+	else if (drawRadio.value() == 'temperature') {
 		world.showTemperature(canvasContext, pixelsPerParticle);
+		drewTemperatureLastFrame = true;
 	}
 	else {
 		background(BACKGROUND_COLOR);
@@ -243,15 +270,15 @@ function draw() {
 }
 
 
-function toggleDrawParticles() {
-	if (drawParticles) {
-		drawParticles = false;
-	}
-	else {
-		drawParticles = true;
-		world.forceShowAllPlaceables();
-	}
-}
+// function toggleDrawParticles() {
+// 	if (drawParticles) {
+// 		drawParticles = false;
+// 	}
+// 	else {
+// 		drawParticles = true;
+// 		world.forceShowAllPlaceables();
+// 	}
+// }
 
 
 updateCanvasSize = function () {

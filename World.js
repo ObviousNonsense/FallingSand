@@ -30,7 +30,7 @@ class World {
                 // this.temperatureGrid[x][y] = INITIAL_TEMPERATURE;
                 // this.temperatureGrid[x][y] = map(x, 0, this.gridWidth, -100, 1000);
                 // this.temperatureGrid[x][y] = map(random(), 0, 1, -100, 100);
-                this.temperatureGrid[x][y] = x < 50 ? -100 : 1000;
+                this.temperatureGrid[x][y] = (x - y) < 10 ? -100 : 1000;
 
 
                 // Initialize boundaries to indestructible walls so I don't ever
