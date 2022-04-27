@@ -71,9 +71,7 @@ class Particle extends Placeable{
             let yn = this.y + d[1];
             let neighbour = this.world.getParticle(xn, yn);
             if (neighbour.flammability > 0 && !neighbour.burning) {
-                if (neighbour.flammability * (1 - 0.5 * d[1]) > random()) {
-                    neighbour.burning = true;
-                }
+                neighbour.tryBurning(d[1]);
             }
             else if (!neighbour && this.fuel > 0) {
                 if (d[1] < 1
@@ -87,11 +85,11 @@ class Particle extends Placeable{
                     );
                 }
             }
-            // else if (neighbour instanceof WaterParticle) {
-            //     neighbour.evaporate();
-            //     this.burning = false;
-            //     break;
-            // }
+            else if (neighbour instanceof WaterParticle) {
+                neighbour.tryEvaporating();
+                this.burning = false;
+                break;
+            }
             // if (this.world.getTemperature(this.x, this.y) < 50) {
             //     this.burning = false;
             //     break;
@@ -101,6 +99,30 @@ class Particle extends Placeable{
         this.fuel--;
         if (this.fuel < 0) {
             this.delete();
+        }
+    }
+
+    tryBurning(dir) {
+        let canBurn = false;
+        if (this.inflammable) {
+            canBurn = true;
+        }
+        else {
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if (!world.getParticle(this.x + dx, this.y + dy)) {
+                        canBurn = true;
+                        break;
+                    }
+                }
+                if (canBurn) {
+                    break;
+                }
+            }
+        }
+
+        if (canBurn && this.flammability * (1 - 0.5 * dir) > random()) {
+            this.burning = true;
         }
     }
 
@@ -137,7 +159,7 @@ class WoodParticle extends Particle {
 
     constructor(x, y, world) {
         super(x, y, world);
-        this.flammability = 0.1;
+        this.flammability = 0.025;
         this.burningHeat = 10;
         this.fuel = 200;
     }
@@ -179,6 +201,9 @@ class FlameParticle extends Particle {
 
         if (!this.fresh) {
             super.update();
+            if (this.world.getTemperature(this.x, this.y) < 50) {
+                this.burning = false;
+            }
         }
         else {
             this.fresh = false;
@@ -436,8 +461,9 @@ class GunpowderParticle extends SandParticle {
     constructor(x, y, world) {
         super(x, y, world);
         this.flammability = 0.7;
+        this.inflammable = true;
         this.fuel = 25;
-        this.burningHeat = 20;
+        this.burningHeat = 5;
     }
 }
 
@@ -497,12 +523,16 @@ class WaterParticle extends FluidParticle {
         // this.weight = 60 - 0.5 * this.world.getTemperature(this.x, this.y);
         this.heatConductivity = 0.2;
         this.boilingPoint = 100;
-        this.latentHeatLimit = 10;
+        this.latentHeatLimit = 25;
         this.latentHeat = 0;
     }
 
     update() {
         super.update(true);
+        this.tryEvaporating();
+    }
+
+    tryEvaporating(){
         let temp = this.world.getTemperature(this.x, this.y);
         if (temp >= this.boilingPoint) {
             let extraHeat = temp - this.boilingPoint;
@@ -560,8 +590,9 @@ class HydrogenParticle extends FluidParticle {
         super(x, y, world);
         this.weight = 0.2;
         this.flammability = 0.95;
+        this.inflammable = true;
         this.fuel = 6;
-        this.burningHeat = 25;
+        this.burningHeat = 5;
     }
 
     update() {
@@ -576,8 +607,9 @@ class GasolineParticle extends FluidParticle {
         super(x, y, world);
         this.weight = 50;
         this.flammability = 0.95;
+        this.inflammable = true;
         this.fuel = 15;
-        this.burningHeat = 20;
+        this.burningHeat = 5;
     }
 
     update() {
