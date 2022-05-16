@@ -314,3 +314,8 @@ randomFill = function () {
 		}
 	}
 }
+
+function touchMoved() {
+	// do some stuff
+	return false;
+} 
